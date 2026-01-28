@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "target": "es6",
+    "esModuleInterop": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "skipLibCheck": false,
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
+  },
+  "exclude": ["index.ts", "dist"]
+}

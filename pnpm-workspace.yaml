@@ -1,0 +1,4 @@
+packages:
+  - "validato"
+  - "utils"
+  - "cloudo"

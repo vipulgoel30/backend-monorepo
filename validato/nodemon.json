@@ -1,0 +1,6 @@
+{
+  "watch": ["src", "index.ts"],
+  "ignore": ["dist","src/exports.ts"],
+  "ext": "ts",
+  "exec": "tsx index.ts && tsc -p tsconfig.build.json"
+}

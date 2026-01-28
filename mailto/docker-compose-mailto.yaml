@@ -1,0 +1,13 @@
+# version: "3.0" Not needed with the latest version of docker 
+
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672" # HOST: CONTAINER
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password

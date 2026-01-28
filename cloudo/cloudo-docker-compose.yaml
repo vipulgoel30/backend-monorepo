@@ -1,0 +1,18 @@
+# version : "3.8"
+
+services:
+  mongodb:
+    image: mongo:noble
+    container_name: mongodb
+    ports:
+      - "27017:27017" # HOST : CONTAINER POR
+    volumes:
+      - "mongodb_volume:/data/db" # Docker volume name : (Container directory mapping)
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: cloudo
+
+volumes:
+  mongodb_volume:
+    driver: local # means the data is stored locally inside the host environment instead of some external cloud and it is managed by docker driver
