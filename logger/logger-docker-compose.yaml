@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:noble
+    container_name: mongo_logger
+    ports:
+      - "27017:27017" # HOST:CONTAINER PORT
+    volumes:
+      - "logger_volume:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: cloudo
+
+volumes:
+  logger_volume:
+    driver: local

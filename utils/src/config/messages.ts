@@ -7,4 +7,9 @@ export const messages = {
     MIN_LENGTH: "The {field} must be at least {minLength} characters long.",
     INVALID_EMAIL: "The {field} must be a valid email address.",
   },
+
+  STATUS: {
+    FAIL: "fail",
+    ERROR: "error",
+  },
 } as const;

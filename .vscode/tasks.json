@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build_cloudo",
+      "type": "shell",
+      "command": "tsc -p ${workspaceFolder}/cloudo/tsconfig.json",
+      "problemMatcher": "$tsc"
+    }
+  ]
+}

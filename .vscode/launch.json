@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Cloudo - Debug TS app",
+      "type": "node",
+      "request": "launch",
+      "envFile": "${workspaceFolder}/cloudo/env/.env",
+      "program": "${workspaceFolder}/cloudo/dist/server.js",
+      "preLaunchTask": "build_cloudo",
+      "outFiles": ["${workspaceFolder}/cloudo/dist/**/*.js"],
+      "sourceMaps": true
+    }
+  ]
+}

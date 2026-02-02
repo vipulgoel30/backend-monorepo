@@ -2,3 +2,4 @@ packages:
   - "validato"
   - "utils"
   - "cloudo"
+  - "logger"
