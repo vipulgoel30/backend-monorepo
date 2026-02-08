@@ -4,6 +4,7 @@ declare global {
       [key: string]: string;
       NODE_ENV: string;
       PORT: string;
+      LOG_LEVEL: string;
     }
   }
 }

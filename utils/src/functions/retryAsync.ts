@@ -1,5 +1,5 @@
 // User imports
-import { settings } from "../config/settings.ts";
+import { utilsSettings as settings } from "../config/settings.ts";
 
 const defaultRetryAsyncOptions = {
   defaultRetries: settings.RETRY_COUNT,
@@ -19,7 +19,6 @@ const retryAsync = async <T = any>(
     if (retries <= 1) throw error;
 
     await new Promise((resolve) => setTimeout(resolve, interval));
-
     const delay = Math.min(interval * 2, maxInterval); // back off delay
 
     return retryAsync(operation, retries - 1, delay, maxInterval);

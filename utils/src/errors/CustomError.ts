@@ -1,6 +1,6 @@
 // User imports
-import { constants } from "../config/constants.ts";
-import { messages } from "../exports.ts";
+import { utilsConstants as constants } from "../config/constants.ts";
+import { utilsMessages as messages } from "../exports.ts";
 
 const { HTTP_CODES } = constants;
 

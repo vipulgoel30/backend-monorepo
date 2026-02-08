@@ -1,9 +1,9 @@
-version: "3.8"
+# version: "3.8" # version is not required it is absolete
 
 services:
   mongodb:
     image: mongo:noble
-    container_name: mongo_logger
+    container_name: logger_mongodb
     ports:
       - "27017:27017" # HOST:CONTAINER PORT
     volumes:
@@ -12,6 +12,19 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
       MONGO_INITDB_DATABASE: cloudo
+
+  kafka-broker-1:
+    image: apache/kafka:3.9.2-rc1
+    container_name: logger_kafka_broker_1
+    ports:
+      - "9092:9092"
+
+  redis:
+    image: redis/redis-stack # contains both redis-stack-server and redis-insights
+    container_name: logger_redis_stack
+    ports:
+      - "6379:6379" # redis-server
+      - "8001:8001" # redis-insights
 
 volumes:
   logger_volume:
