@@ -78,6 +78,9 @@ importers:
 
   utils:
     dependencies:
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       megajs:
         specifier: ^1.3.2
         version: 1.3.2
@@ -85,6 +88,9 @@ importers:
         specifier: ^9.1.5
         version: 9.1.5
     devDependencies:
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/node':
         specifier: ^25.0.10
         version: 25.0.10
