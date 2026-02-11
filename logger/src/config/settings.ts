@@ -10,4 +10,6 @@ export default {
       EXTENSION: ".log",
     },
   },
+
+  BCRYPT_HASH_SALT: 10,
 } as const;

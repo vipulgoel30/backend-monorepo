@@ -1,10 +1,12 @@
 // Third party imports
 import { Schema, model } from "mongoose";
 import { z } from "zod";
+import { hash } from "bcryptjs";
 
 // User imports
 import validations from "../config/validations.js";
 import { CreateMongoStringSchema, formatStr, utilsMessages } from "@mono/utils";
+import settings from "../config/settings.js";
 
 const ENTITY_NAME = "Users";
 
@@ -14,6 +16,8 @@ interface UserI {
   name: string;
   email: string;
   password: string;
+  passwordLastModifiedAt: Date;
+  isVerified: boolean;
 }
 
 const userSchema = new Schema<UserI>(
@@ -36,11 +40,27 @@ const userSchema = new Schema<UserI>(
         formatStr(utilsMessages.FIELD.NO_SPACES, { field: PASSWORD_VALIDATIONS.FIELD }),
       )
       .build(),
+    passwordLastModifiedAt: Date,
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: { createdAt: true, updatedAt: true },
   },
 );
+
+
+// Pre Save 
+userSchema.pre("save", async function () {
+  // Checking if the document is the newly created document
+  // or password field is modified
+  if (this.isNew || this.isModified("password")) {
+    this.passwordLastModifiedAt = new Date();
+    this.password = await hash(this.password, settings.BCRYPT_HASH_SALT); // hashing the password
+  }
+});
 
 const User = model(ENTITY_NAME, userSchema);
 
