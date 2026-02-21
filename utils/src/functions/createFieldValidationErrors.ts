@@ -1,18 +1,25 @@
 // User imports
 import type {
-  BaseFieldValidationMessageType,
-  BaseFieldValidationType,
-  NumberFieldValidationMessageType,
-  NumberFieldValidationType,
-  StringFieldValidationMessageType,
-  StringFieldValidationType,
+  BaseFieldValidationMessageRule,
+  BaseFieldValidationRule,
+  NumberFieldValidationMessageRule,
+  NumberFieldValidationRule,
+  Primitive,
+  StringFieldValidationMessageRule,
+  StringFieldValidationRule,
 } from "../types.ts";
 import { formatStr } from "./formatStr.ts";
 import { utilsMessages as messages } from "../config/messages.ts";
 
-const createFieldValidationErrorMsg = (validations: BaseFieldValidationType): BaseFieldValidationMessageType => {
+const createFieldValidationErrorMsg = <FieldType extends Primitive>(
+  validations: BaseFieldValidationRule<FieldType>,
+): BaseFieldValidationMessageRule => {
   return {
-    invalidType: formatStr(messages.FIELD.INVALID_TYPE, { field: validations.field, type: validations.type }),
+    invalidType: formatStr(messages.FIELD.INVALID_TYPE, {
+      field: validations.field,
+      type: validations.type,
+    }),
+    invalidValue: formatStr(messages.FIELD.INVALID_VALUE, { field: validations.field }),
     ...(validations.isRequired === true && {
       required: formatStr(messages.FIELD.REQUIRED, { field: validations.field }),
     }),
@@ -20,10 +27,10 @@ const createFieldValidationErrorMsg = (validations: BaseFieldValidationType): Ba
 };
 
 const createStringFieldValidationErrorMsg = (
-  validations: StringFieldValidationType,
-): StringFieldValidationMessageType => {
+  validations: StringFieldValidationRule,
+): StringFieldValidationMessageRule => {
   return {
-    ...createFieldValidationErrorMsg(validations),
+    ...createFieldValidationErrorMsg<string>(validations),
     ...(typeof validations.minLength === "number" && {
       minLength: formatStr(messages.FIELD.MIN_LENGTH, { field: validations.field, minLength: validations.minLength }),
     }),
@@ -31,16 +38,16 @@ const createStringFieldValidationErrorMsg = (
       maxLength: formatStr(messages.FIELD.MAX_LENGTH, { field: validations.field, maxLength: validations.maxLength }),
     }),
     ...(validations.isNoSpaces === true && {
-      prohibitSpace: formatStr(messages.FIELD.PROHIBIT_SPACE, { field: validations.field }),
+      prohibitSpace: formatStr(messages.FIELD.NO_SPACE, { field: validations.field }),
     }),
   };
 };
 
 const createNumberFieldValidationErrorMsg = (
-  validations: NumberFieldValidationType,
-): NumberFieldValidationMessageType => {
+  validations: NumberFieldValidationRule,
+): NumberFieldValidationMessageRule => {
   return {
-    ...createFieldValidationErrorMsg(validations),
+    ...createFieldValidationErrorMsg<number>(validations),
     ...(typeof validations.minValue === "number" && {
       minValue: formatStr(messages.FIELD.MIN_VALUE, { field: validations.field, minValue: validations.minValue }),
     }),

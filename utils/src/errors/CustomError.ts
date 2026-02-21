@@ -2,29 +2,26 @@
 import { utilsConstants as constants } from "../config/constants.ts";
 import { utilsMessages as messages } from "../exports.ts";
 
-const { HTTP_CODES } = constants;
 
-interface DeveloperError<T> {
-  message: string;
+export interface DeveloperError<MetaInfoType> {
+  message?: string;
   statusCode?: number;
-  meta: T;
+  meta?: MetaInfoType;
 }
 
-class CustomError<T> extends Error {
+export class CustomError<MetaInfoType> extends Error {
   constructor(
     message: string,
     public readonly statusCode: number,
-    public readonly developerError?: DeveloperError<T>,
+    public readonly developerError?: DeveloperError<MetaInfoType>,
   ) {
     super(message);
   }
 
   static getStatus(statusCode: number) {
-    return statusCode >= HTTP_CODES.BAD_REQUEST && statusCode < HTTP_CODES.INTERNAL_SERVER_ERROR
+    return statusCode >= constants.HTTP_CODES.BAD_REQUEST && statusCode < constants.HTTP_CODES.INTERNAL_SERVER_ERROR
       ? messages.STATUS.FAIL
       : messages.STATUS.ERROR;
   }
 }
 
-export { CustomError };
-export { type DeveloperError };

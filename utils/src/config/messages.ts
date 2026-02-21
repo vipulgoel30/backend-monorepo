@@ -6,11 +6,23 @@ export const utilsMessages = {
     MAX_LENGTH: "The '{field}' must not exceed {maxLength} characters.",
     MIN_LENGTH: "The '{field}' must be at least {minLength} characters long.",
     INVALID_EMAIL: "The '{field}' must be a valid email address.",
-    PROHIBIT_SPACE: "The '{field}' must not contain spaces.",
+    NO_SPACE: "The '{field}' must not contain spaces.",
     INVALID_TYPE: "The '{field}' must be of type {type}.",
     MIN_VALUE: "The '{field}' must be at least {minValue}.",
     MAX_VALUE: "The '{field}' must not exceed {maxValue}.",
+    INVALID_VALUE: "Invalid value provided for the field '{field}'.",
   },
+
+  INVALID_MIN_LENGTH_VALIDATION:
+    "Invalid minLength value configured for field '{field}'. Expected a non-negative number.",
+  INVALID_MAX_LENGTH_VALIDATION:
+    "Invalid maxLength value configured for field '{field}'. Expected a non-negative number.",
+  INVALID_LENGTH_RANGE_VALIDATION:
+    "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
+  CONFLICTING_CASE_TRANSFORM:
+    "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
+  INVALID_VALUE_RANGE_VALIDATION:
+    "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
 
   MONGO_ERROR: {
     FORMAT: "{prefix}; Entity : {entity}; Message : {message}",

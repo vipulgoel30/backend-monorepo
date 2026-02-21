@@ -1,43 +1,48 @@
+export type Primitive = string | number | boolean;
+
 ////////////////////////////////////////////////
 /// FIELD VALIDATION TYPES
 ////////////////////////////////////////////////
-export interface BaseFieldValidationType {
+export interface BaseFieldValidationRule<FieldType extends Primitive> {
   readonly field: string;
-  readonly type: "string" | "number" | "boolean";
+  readonly type: FieldType;
   readonly isRequired?: boolean;
 }
 
-export interface StringFieldValidationType extends BaseFieldValidationType {
+export interface StringFieldValidationRule extends BaseFieldValidationRule<string> {
   readonly isTrim?: boolean;
   readonly minLength?: number;
   readonly maxLength?: number;
   readonly isNoSpaces?: boolean;
+  readonly isToLowerCase?: boolean;
+  readonly isToUpperCase?: boolean;
 }
 
-export interface NumberFieldValidationType extends BaseFieldValidationType {
+export interface NumberFieldValidationRule extends BaseFieldValidationRule<number> {
   readonly minValue?: number;
   readonly maxValue?: number;
 }
 
-export type FieldValidationType = StringFieldValidationType | NumberFieldValidationType;
+export type FieldValidationRule = StringFieldValidationRule | NumberFieldValidationRule;
 
 //////////////////////////////////////////////////////
 // FIELD VALIDATION MESSAGE TYPES
 //////////////////////////////////////////////////////
-export interface BaseFieldValidationMessageType {
+export interface BaseFieldValidationMessageRule {
   readonly invalidType: string;
+  readonly invalidValue: string;
   readonly required?: string;
 }
 
-export interface StringFieldValidationMessageType extends BaseFieldValidationMessageType {
+export interface StringFieldValidationMessageRule extends BaseFieldValidationMessageRule {
   readonly minLength?: string;
   readonly maxLength?: string;
   readonly noSpaces?: string;
 }
 
-export interface NumberFieldValidationMessageType extends BaseFieldValidationMessageType {
+export interface NumberFieldValidationMessageRule extends BaseFieldValidationMessageRule {
   readonly minValue?: string;
   readonly maxValue?: string;
 }
 
-export type FieldValidationMessageType = StringFieldValidationMessageType | NumberFieldValidationMessageType;
+export type FieldValidationMessageRule = StringFieldValidationMessageRule | NumberFieldValidationMessageRule;

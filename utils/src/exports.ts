@@ -9,7 +9,7 @@ export * from "./functions/retryAsync.ts";
 export * from "./functions/zod.ts";
 export * from "./errors/AppError.ts";
 export * from "./errors/CustomError.ts";
-export * from "./errors/InternalServerError.ts";
+export * from "./errors/httpErrors/InternalServerError.ts";
 export * from "./config/constants.ts";
 export * from "./config/messages.ts";
 export * from "./config/settings.ts";

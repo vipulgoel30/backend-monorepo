@@ -1,5 +1,5 @@
 // Third party imports
-import { Schema, SchemaTypeOptions, connect, connection, type ConnectOptions } from "mongoose";
+import { Schema, SchemaTypeOptions, connect, type ConnectOptions } from "mongoose";
 
 // User imports
 import { formatStr } from "./formatStr.ts";
@@ -13,11 +13,6 @@ const mongoConnect = async (
   options?: ConnectOptions,
 ) => {
   await retryAsync(async () => await connect(uri, options));
-  connection.on("connected", () => console.log());
-  connection.on("error", (error) => {});
-  connection.on("disconnected", () => {});
-  connection.on("disconnecting", () => {});
-  connection.on("disconnected", () => console.log("disconnected"));
 };
 
 class CreateMongoSchema<T> {
