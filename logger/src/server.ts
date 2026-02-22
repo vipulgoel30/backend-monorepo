@@ -1,7 +1,6 @@
+// User imports
 import app from "./app.js";
-import { connect } from "mongoose";
-import { utilsMessages } from "@mono/utils";
-import { isPort } from "validator";
+import { isPortAsStr, utilsMessages } from "@mono/utils";
 
 const ERR_TYPES = ["uncaughtException", "unhandledRejection"] as const;
 ERR_TYPES.forEach((errType: (typeof ERR_TYPES)[number]) => {
@@ -13,12 +12,8 @@ ERR_TYPES.forEach((errType: (typeof ERR_TYPES)[number]) => {
 
 const initServer = async () => {
   try {
-    const port = process.env.PORT;
-    if (!isPort(port)) {
-    }
-  } catch (err) {
-    
-  }
+    const port: number = isPortAsStr(process.env.PORT, "Server condfiguration : port");
+  } catch (err) {}
 };
 
 initServer();

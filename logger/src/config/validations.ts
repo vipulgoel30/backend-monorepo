@@ -1,5 +1,4 @@
 // User imports
-
 const fieldValidations = {
   user: {
     name: {

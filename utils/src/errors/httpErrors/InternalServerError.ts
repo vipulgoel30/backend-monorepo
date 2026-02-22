@@ -1,8 +1,8 @@
 // User imports
-import { CustomError, DeveloperError } from "../CustomError.ts";
 import { utilsConstants as constants } from "../../config/constants.ts";
+import { AppError, type DeveloperError } from "../AppError.ts";
 
-class InternalServerError<T> extends CustomError<T> {
+class InternalServerError<T> extends AppError<T> {
   constructor(
     message: string,
     public readonly developerError?: DeveloperError<T>,

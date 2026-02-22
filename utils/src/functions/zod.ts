@@ -21,11 +21,14 @@ export const createStringZodSchema = (
   //1. Config validations
   //1.1 Checking if both lowercase and uppercase tranformation is specified
   if (validations.isToLowerCase && validations.isToUpperCase) {
-    throw new InternalServerError(formatStr(messages.CONFLICTING_CASE_TRANSFORM, { field: validations.field }), {
-      meta: {
-        validations,
+    throw new InternalServerError(
+      formatStr(messages.INVALID_VALIDATION.CONFLICTING_CASE_TRANSFORM, { field: validations.field }),
+      {
+        meta: {
+          validations,
+        },
       },
-    });
+    );
   }
 
   //1.2 Checking if minLength > maxLength
@@ -34,7 +37,7 @@ export const createStringZodSchema = (
     typeof validations.maxLength === "number" &&
     validations.minLength > validations.maxLength
   ) {
-    throw new InternalServerError(formatStr(messages.INVALID_LENGTH_RANGE_VALIDATION, { field: validations.field }), {
+    throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.LENGTH_RANGE, { field: validations.field }), {
       meta: validations,
     });
   }
@@ -64,7 +67,7 @@ export const createStringZodSchema = (
   //7. minLength validation
   if (typeof validations.minLength === "number") {
     if (validations.minLength < 0)
-      throw new InternalServerError(formatStr(messages.INVALID_MIN_LENGTH_VALIDATION, { field: validations.field }), {
+      throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.MIN_LENGTH, { field: validations.field }), {
         meta: validations,
       });
 
@@ -74,7 +77,7 @@ export const createStringZodSchema = (
   //8. maxLength validation
   if (typeof validations.maxLength === "number") {
     if (validations.maxLength < 0)
-      throw new InternalServerError(formatStr(messages.INVALID_MAX_LENGTH_VALIDATION, { field: validations.field }), {
+      throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.MAX_LENGTH, { field: validations.field }), {
         meta: validations,
       });
 
@@ -94,9 +97,12 @@ export const createNumberZodSchema = (
     typeof validations.maxValue === "number" &&
     validations.minValue > validations.maxValue
   ) {
-    throw new InternalServerError(formatStr(messages.INVALID_VALUE_RANGE_VALIDATION, { field: validations.field }), {
-      meta: validations,
-    });
+    throw new InternalServerError(
+      formatStr(messages.INVALID_VALIDATION.MIN_MAX_VALUE_RANGE, { field: validations.field }),
+      {
+        meta: validations,
+      },
+    );
   }
 
   let schema: ZodNumber = z.number({
