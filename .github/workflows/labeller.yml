@@ -1,7 +1,7 @@
 name: "labelller"
 
 on:
-  workflow-dispatch:
+  workflow_dispatch:
 
 jobs:
   labeller:
