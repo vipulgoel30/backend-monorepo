@@ -3,3 +3,5 @@ packages:
   - "utils"
   - "cloudo"
   - "logger"
+  - "custom-workflow"
+  - "ts-morph"
