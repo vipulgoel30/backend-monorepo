@@ -1,0 +1,7 @@
+name: "Label new pull request"
+description: "Add a label when a new PR is created"
+author: "Vipul Goel"
+
+runs:
+  using: "node16"
+  main: "dist/index.js"
