@@ -1,5 +1,7 @@
 export const utilsSettings = {
-  RETRY_COUNT: 3,
-  RETRY_INTERVAL: 100,
-  RETRY_MAX_INTERVAL: 500,
+  RETRY: {
+    COUNT: 3,
+    INTERVAL: 100,
+    MAX_INTERVAL: 500,
+  },
 } as const;

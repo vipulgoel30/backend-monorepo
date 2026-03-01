@@ -2,9 +2,9 @@
 import { utilsSettings as settings } from "../config/settings.ts";
 
 const defaultRetryAsyncOptions = {
-  defaultRetries: settings.RETRY_COUNT,
-  defaultInterval: settings.RETRY_INTERVAL,
-  defaultMaxInterval: settings.RETRY_MAX_INTERVAL,
+  defaultRetries: settings.RETRY.COUNT,
+  defaultInterval: settings.RETRY.INTERVAL,
+  defaultMaxInterval: settings.RETRY.MAX_INTERVAL,
 };
 
 const retryAsync = async <T = any>(

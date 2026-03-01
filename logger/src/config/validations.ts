@@ -1,5 +1,4 @@
-// User imports
-const fieldValidations = {
+export const fieldValidations = {
   user: {
     name: {
       field: "name",

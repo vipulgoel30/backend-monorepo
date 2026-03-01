@@ -7,7 +7,7 @@ import { formatStr } from "@mono/utils";
 import messages from "../config/messages.js";
 import settings from "../config/settings.js";
 
-const { combine, timestamp, colorize, errors, json } = format;
+const { combine, timestamp, colorize, json } = format;
 
 const allowedLevels = Object.keys(config.npm.levels);
 
@@ -42,3 +42,6 @@ if (process.env.NODE_ENV !== "production") {
     }),
   );
 }
+
+
+export default logger;
