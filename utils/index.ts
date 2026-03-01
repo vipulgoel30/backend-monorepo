@@ -1,6 +1,6 @@
 // Core imports
 import { readdir, writeFile } from "fs/promises";
-import { extname, join, relative } from "path";
+import { extname, join, relative, sep } from "path";
 
 const excludeFiles = new Set(["exports.ts"]);
 const includedExtensions = new Set([".ts"]);
@@ -24,10 +24,10 @@ const writeFilePath = join(rootPath, "exports.ts");
       if (!includedExtensions.has(extname(dirent.name))) continue;
       if (excludeFiles.has(dirent.name)) continue;
 
-      exports.push(relative(rootPath, join(dirent.parentPath, dirent.name)));
+      exports.push(relative(rootPath, join(dirent.parentPath, dirent.name)).split(sep).join("/"));
     }
 
-    writeFile(writeFilePath, exports.map((exp) => `export * from "./${exp}";`).join("\n"));
+    writeFile(writeFilePath, exports.map((exp) => `export * from './${exp}';`).join("\n"));
     console.log("Exports file successfully created at at path : " + writeFilePath);
   } catch (error) {
     console.log("Error occured while creating exports file at path : " + writeFilePath);

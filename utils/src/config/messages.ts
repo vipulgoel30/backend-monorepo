@@ -28,16 +28,14 @@ export const utilsMessages = {
   },
 
   MONGO_ERROR: {
-    FORMAT: "{prefix}; Entity : {entity}; Message : {message}",
     PREFIX: "MongoDB Error",
+    SCHEMA_ERROR_FORMAT: "Entity : {entity}; Message : {message}",
   },
-
-  // MONGO_EVENT: {},
 
   STATUS: {
     FAIL: "fail",
     ERROR: "error",
   },
 
-  ERROR: "Error : ",
+  ERROR_FORMAT: "{prefix}; Error : {message}",
 } as const;

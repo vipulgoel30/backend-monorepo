@@ -4,13 +4,13 @@ import { z } from "zod";
 import { hash } from "bcryptjs";
 
 // User imports
-import validations from "../config/validations.js";
+import { fieldValidations } from "../config/validations.js";
 import { CreateMongoStringSchema, formatStr, utilsMessages } from "@mono/utils";
 import settings from "../config/settings.js";
 
 const ENTITY_NAME = "Users";
 
-const { NAME: NAME_VALIDATIONS, EMAIL: EMAIL_VALIDATIONS, PASSWORD: PASSWORD_VALIDATIONS } = validations.USER;
+const { name: nameValidations, email: emailValidations, password: passwordValidations } = fieldValidations.user;
 
 interface UserI {
   name: string;
@@ -22,22 +22,20 @@ interface UserI {
 
 const userSchema = new Schema<UserI>(
   {
-    name: new CreateMongoStringSchema(NAME_VALIDATIONS.FIELD, ENTITY_NAME)
-      .aggregateValidations(NAME_VALIDATIONS)
-      .build(),
-    email: new CreateMongoStringSchema(EMAIL_VALIDATIONS.FIELD, ENTITY_NAME)
-      .aggregateValidations(EMAIL_VALIDATIONS)
+    name: new CreateMongoStringSchema(nameValidations.field, ENTITY_NAME).aggregateValidations(nameValidations).build(),
+    email: new CreateMongoStringSchema(emailValidations.field, ENTITY_NAME)
+      .aggregateValidations(emailValidations)
       .validate(
-        (value) => z.email().safeParse(value).success,
-        formatStr(utilsMessages.FIELD.INVALID_EMAIL, { field: EMAIL_VALIDATIONS.FIELD }),
+        (value: string) => z.email().safeParse(value).success,
+        formatStr(utilsMessages.FIELD.INVALID_EMAIL, { field: emailValidations.field }),
       )
       .build(),
 
-    password: new CreateMongoStringSchema(PASSWORD_VALIDATIONS.FIELD, ENTITY_NAME)
-      .aggregateValidations(PASSWORD_VALIDATIONS)
+    password: new CreateMongoStringSchema(passwordValidations.field, ENTITY_NAME)
+      .aggregateValidations(passwordValidations)
       .validate(
-        (value) => !value.includes(" "),
-        formatStr(utilsMessages.FIELD.NO_SPACES, { field: PASSWORD_VALIDATIONS.FIELD }),
+        (value: string) => !value.includes(" "),
+        formatStr(utilsMessages.FIELD.NO_SPACE, { field: passwordValidations.field }),
       )
       .build(),
     passwordLastModifiedAt: Date,

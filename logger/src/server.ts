@@ -1,6 +1,7 @@
 // User imports
 import app from "./app.js";
 import { isPortAsStr, utilsMessages } from "@mono/utils";
+import logger from "./utils/logger.js";
 
 const ERR_TYPES = ["uncaughtException", "unhandledRejection"] as const;
 ERR_TYPES.forEach((errType: (typeof ERR_TYPES)[number]) => {
@@ -10,10 +11,14 @@ ERR_TYPES.forEach((errType: (typeof ERR_TYPES)[number]) => {
   });
 });
 
+
+
 const initServer = async () => {
   try {
     const port: number = isPortAsStr(process.env.PORT, "Server condfiguration : port");
-  } catch (err) {}
+  } catch (err) {
+    logger.error("wdguwud");
+  }
 };
 
 initServer();
