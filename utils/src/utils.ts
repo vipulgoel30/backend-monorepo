@@ -1,15 +1,39 @@
 // Third party imports
-import validator from "validator";
+import { ZodCoercedNumber } from "zod";
 
 // User imports
 import { CustomError } from "./errors/CustomError.ts";
-import { utilsMessages as messages } from "./config/messages.ts";
+import { utilValidations as validations } from "./config/validations.ts";
+import { createNumberZodSchema, NumberFieldValidationRule, parseZodError } from "./exports.ts";
 
-export const isPortAsStr = (port: string, field?: string): number => {
-  if (!validator.isPort(port)) {
-    throw new CustomError(messages.VALIDATIONS.PORT, { meta: field });
+export function isPortAsStr(port: string, schema: ZodCoercedNumber): number;
+export function isPortAsStr(port: string, field: string): number;
+export function isPortAsStr(port: string, arg1: string | ZodCoercedNumber): number {
+  let schema: ZodCoercedNumber;
+  if (typeof arg1 === "string") {
+    const portValidation: NumberFieldValidationRule<true> = {
+      field: arg1,
+      isRequired: true,
+      type: validations.portValidation.type,
+      minValue: validations.portValidation.minValue,
+      maxValue: validations.portValidation.maxValue,
+    };
+    schema = createNumberZodSchema(portValidation, true);
+  } else {
+    schema = arg1;
   }
 
-  return parseInt(port);
+  const result = schema.safeParse(port);
+
+  if (!result.success) {
+    throw new CustomError(parseZodError(result.error, true));
+  }
+
+  return result.data!;
+}
+
+export const getErrMessage = (err: unknown): string => {
+  return err instanceof Error ? err.message : String(err);
 };
+
 
