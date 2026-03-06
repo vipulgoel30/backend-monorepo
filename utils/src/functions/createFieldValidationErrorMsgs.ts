@@ -1,19 +1,16 @@
 // User imports
 import type {
-  BaseFieldValidationMessageRule,
+  BaseFieldValidationMessage,
   BaseFieldValidationRule,
-  NumberFieldValidationMessageRule,
+  NumberFieldValidationMessage,
   NumberFieldValidationRule,
-  Primitive,
-  StringFieldValidationMessageRule,
+  StringFieldValidationMessage,
   StringFieldValidationRule,
 } from "../types.ts";
 import { formatStr } from "./formatStr.ts";
 import { utilsMessages as messages } from "../config/messages.ts";
 
-const createFieldValidationErrorMsg = <FieldType extends Primitive>(
-  validations: BaseFieldValidationRule<FieldType>,
-): BaseFieldValidationMessageRule => {
+const createFieldValidationErrorMsg = <TRequired extends boolean>(validations: BaseFieldValidationRule<TRequired>): BaseFieldValidationMessage => {
   return {
     invalidType: formatStr(messages.FIELD.INVALID_TYPE, {
       field: validations.field,
@@ -26,11 +23,9 @@ const createFieldValidationErrorMsg = <FieldType extends Primitive>(
   };
 };
 
-const createStringFieldValidationErrorMsg = (
-  validations: StringFieldValidationRule,
-): StringFieldValidationMessageRule => {
+const createStringFieldValidationErrorMsg = <TRequired extends boolean>(validations: StringFieldValidationRule<TRequired>): StringFieldValidationMessage => {
   return {
-    ...createFieldValidationErrorMsg<string>(validations),
+    ...createFieldValidationErrorMsg(validations),
     ...(typeof validations.minLength === "number" && {
       minLength: formatStr(messages.FIELD.MIN_LENGTH, { field: validations.field, minLength: validations.minLength }),
     }),
@@ -43,11 +38,9 @@ const createStringFieldValidationErrorMsg = (
   };
 };
 
-const createNumberFieldValidationErrorMsg = (
-  validations: NumberFieldValidationRule,
-): NumberFieldValidationMessageRule => {
+const createNumberFieldValidationErrorMsg = <TRequired extends boolean>(validations: NumberFieldValidationRule<TRequired>): NumberFieldValidationMessage => {
   return {
-    ...createFieldValidationErrorMsg<number>(validations),
+    ...createFieldValidationErrorMsg(validations),
     ...(typeof validations.minValue === "number" && {
       minValue: formatStr(messages.FIELD.MIN_VALUE, { field: validations.field, minValue: validations.minValue }),
     }),
