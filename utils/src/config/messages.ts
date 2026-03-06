@@ -17,19 +17,19 @@ export const utilsMessages = {
     MIN_LENGTH: "Invalid minLength value configured for field '{field}'. Expected a non-negative number.",
     MAX_LENGTH: "Invalid maxLength value configured for field '{field}'. Expected a non-negative number.",
     LENGTH_RANGE: "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
-    CONFLICTING_CASE_TRANSFORM:
-      "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
-    MIN_MAX_VALUE_RANGE:
-      "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
+    CONFLICTING_CASE_TRANSFORM: "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
+    MIN_MAX_VALUE_RANGE: "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
   },
 
   VALIDATIONS: {
-    PORT: "Invalid port number. Please provide a value between 0 and 65535.",
+    PORT: "Invalid '{field}'. Please provide a value between 0 and 65535.",
   },
 
   MONGO_ERROR: {
     PREFIX: "MongoDB Error",
-    SCHEMA_ERROR_FORMAT: "Entity : {entity}; Message : {message}",
+    SCHEMA_ERROR_FORMAT: "Entity : {entity}; Error message : {message}",
+    CREATE_MONGO_URI_ERROR: "Failed to create MongoDB connection URI.",
+    MONGO_CONNECT_ERROR: "Failed to connect to MongoDB.",
   },
 
   STATUS: {
@@ -37,5 +37,5 @@ export const utilsMessages = {
     ERROR: "error",
   },
 
-  ERROR_FORMAT: "{prefix}; Error : {message}",
+  ERROR_FORMAT: "{defaultMessage}; Error : {errorMsg}",
 } as const;

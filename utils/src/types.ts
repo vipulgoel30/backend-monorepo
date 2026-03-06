@@ -1,15 +1,17 @@
-export type Primitive = string | number | boolean;
+import { boolean } from "zod";
+
+export type Primitive = string | number | boolean | null | undefined;
 
 ////////////////////////////////////////////////
 /// FIELD VALIDATION TYPES
 ////////////////////////////////////////////////
-export interface BaseFieldValidationRule<FieldType extends Primitive> {
+export interface BaseFieldValidationRule<TRequired extends boolean> {
   readonly field: string;
-  readonly type: FieldType;
-  readonly isRequired?: boolean;
+  readonly type: "string" | "number" | "boolean";
+  readonly isRequired: TRequired;
 }
 
-export interface StringFieldValidationRule extends BaseFieldValidationRule<string> {
+export interface StringFieldValidationRule<TRequired extends boolean> extends BaseFieldValidationRule<TRequired> {
   readonly isTrim?: boolean;
   readonly minLength?: number;
   readonly maxLength?: number;
@@ -18,31 +20,31 @@ export interface StringFieldValidationRule extends BaseFieldValidationRule<strin
   readonly isToUpperCase?: boolean;
 }
 
-export interface NumberFieldValidationRule extends BaseFieldValidationRule<number> {
+export interface NumberFieldValidationRule<TRequired extends boolean> extends BaseFieldValidationRule<TRequired> {
   readonly minValue?: number;
   readonly maxValue?: number;
 }
 
-export type FieldValidationRule = StringFieldValidationRule | NumberFieldValidationRule;
+// export type FieldValidationRule<TRequired extends boolean> = StringFieldValidationRule<TRequired> | NumberFieldValidationRule<TRequired>;
 
 //////////////////////////////////////////////////////
 // FIELD VALIDATION MESSAGE TYPES
 //////////////////////////////////////////////////////
-export interface BaseFieldValidationMessageRule {
+export interface BaseFieldValidationMessage {
   readonly invalidType: string;
   readonly invalidValue: string;
   readonly required?: string;
 }
 
-export interface StringFieldValidationMessageRule extends BaseFieldValidationMessageRule {
+export interface StringFieldValidationMessage extends BaseFieldValidationMessage {
   readonly minLength?: string;
   readonly maxLength?: string;
   readonly noSpaces?: string;
 }
 
-export interface NumberFieldValidationMessageRule extends BaseFieldValidationMessageRule {
+export interface NumberFieldValidationMessage extends BaseFieldValidationMessage {
   readonly minValue?: string;
   readonly maxValue?: string;
 }
 
-export type FieldValidationMessageRule = StringFieldValidationMessageRule | NumberFieldValidationMessageRule;
+// export type FieldValidationMessage = StringFieldValidationMessage | NumberFieldValidationMessage;
