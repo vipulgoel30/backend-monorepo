@@ -3,3 +3,6 @@ node_modules
 dist
 !custom-workflow/dist
 logs
+pending.md
+
+*.tsbuildinfo

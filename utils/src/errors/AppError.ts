@@ -18,8 +18,6 @@ export class AppError<MetaType> extends Error {
   }
 
   static getStatus(statusCode: number) {
-    return statusCode >= constants.HTTP_CODES.BAD_REQUEST && statusCode < constants.HTTP_CODES.INTERNAL_SERVER_ERROR
-      ? messages.STATUS.FAIL
-      : messages.STATUS.ERROR;
+    return statusCode >= constants.HTTP_CODES.BAD_REQUEST && statusCode < constants.HTTP_CODES.INTERNAL_SERVER_ERROR ? messages.STATUS.FAIL : messages.STATUS.ERROR;
   }
 }

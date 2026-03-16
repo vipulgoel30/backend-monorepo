@@ -11,7 +11,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
-      MONGO_INITDB_DATABASE: cloudo
+      MONGO_INITDB_DATABASE: logger
 
   kafka-broker-1:
     image: apache/kafka:3.9.2-rc1

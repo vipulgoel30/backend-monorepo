@@ -25,8 +25,8 @@ export const utilsMessages = {
     PORT: "Invalid '{field}'. Please provide a value between 0 and 65535.",
   },
 
-  MONGO_ERROR: {
-    PREFIX: "MongoDB Error",
+  MONGO: {
+    SCOPE: "MongoDB/Mongoose",
     SCHEMA_ERROR_FORMAT: "Entity : {entity}; Error message : {message}",
     CREATE_MONGO_URI_ERROR: "Failed to create MongoDB connection URI.",
     MONGO_CONNECT_ERROR: "Failed to connect to MongoDB.",
@@ -38,4 +38,5 @@ export const utilsMessages = {
   },
 
   ERROR_FORMAT: "{defaultMessage}; Error : {errorMsg}",
+  DEFAULT_ERROR_MESSAGE: "Uhh!!! Something went wrong on the server.",
 } as const;

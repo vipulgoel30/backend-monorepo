@@ -50,7 +50,7 @@ const userSchema = new Schema<UserI>(
 );
 
 
-// Pre Save 
+// Pre save document middleware hook
 userSchema.pre("save", async function () {
   // Checking if the document is the newly created document
   // or password field is modified
