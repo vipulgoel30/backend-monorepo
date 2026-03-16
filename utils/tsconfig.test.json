@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "ts-node": {
+    "esm": true,
+    "transpileOnly": true
+  },
+  "compilerOptions": {
+    "rootDir": "test",
+    "outDir": "dist-test",
+    "paths": { "@src/*": ["./src/*"] }
+  },
+  "include": ["test"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}
