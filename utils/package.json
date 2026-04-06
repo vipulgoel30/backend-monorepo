@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
+    "start": "node ./src/exports.ts",
     "build": "tsx index.ts && tsc --project tsconfig.build.json",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
   },

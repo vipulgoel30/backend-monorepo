@@ -10,6 +10,9 @@ importers:
 
   cloudo:
     dependencies:
+      '@mono/utils':
+        specifier: workspace:*
+        version: link:../utils
       express:
         specifier: ^5.2.1
         version: 5.2.1

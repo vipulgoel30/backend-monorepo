@@ -5,7 +5,9 @@ import type { Request, Response, NextFunction } from "express";
 import { catchAsync } from "@mono/utils";
 
 class AuthController {
-  signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {});
+  signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    
+  });
 }
 
 

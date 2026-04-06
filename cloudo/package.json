@@ -13,7 +13,8 @@
   "dependencies": {
     "express": "^5.2.1",
     "megajs": "^1.3.2",
-    "mongoose": "^9.1.5"
+    "mongoose": "^9.1.5",
+    "@mono/utils": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

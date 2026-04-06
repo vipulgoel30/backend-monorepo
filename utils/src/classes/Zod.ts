@@ -1,148 +1,138 @@
 // Third party imports
-import { z, type ZodNumber, type ZodString, type ZodType, type ZodOptional, type ZodNullable, type ZodError, type ZodCoercedNumber } from "zod";
+import { z, type ZodString, type ZodType, type ZodOptional, type ZodNullable, ZodCoercedNumber, ZodNumber, ZodEmail, type ZodError } from "zod";
 
 // User imports
-import { StringFieldValidationRule, NumberFieldValidationRule, StringFieldTransformations } from "../types.ts";
-import { InternalServerError } from "../errors/httpErrors/InternalServerError.ts";
-import { utilsMessages as messages } from "../config/messages.ts";
-import { NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "./FieldValidationErrorMsgs.ts";
-import { formatStr } from "../utils.ts";
+import type { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types.ts";
+import { CustomError, CustomErrorInfo } from "./../errors/CustomError.ts";
+import { utilsMessages as messages } from "./../config/messages.ts";
+import { createNumberFieldValidationErrorMsg, createStringFieldValidationErrorMsg } from "./../classes/FieldValidationErrorMsgs.ts";
+import { FieldDefinition, NumberFieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
+import { FieldValidations, NumberFieldValidations, StringFieldValidations } from "./FieldValidations.ts";
+import { FieldTransformations, NumberFieldTransformations, StringFieldTransformations } from "./FieldTransformations.ts";
+// import { mongoFieldDefinitions } from "../config/definitions.ts";
 
-export type ZodNullish<T extends ZodType> = ZodOptional<ZodNullable<T>>;
-
-export class StringZodSchema<TRequired extends boolean> {
-  private _transformations: StringFieldTransformations = {};
-  private _validationMessages?: StringFieldValidationErrorMsg<TRequired>;
-  constructor(
-    public readonly validations: StringFieldValidationRule<TRequired>,
-    validationsMessages?: StringFieldValidationErrorMsg<TRequired>,
-  ) {
-    this._validationMessages = validationsMessages;
-  }
-
-  get transformations(): Readonly<StringFieldTransformations> {
-    return this._transformations;
-  }
-
-  get validationMessages(): Readonly<StringFieldValidationErrorMsg<TRequired>> | undefined {
-    return this._validationMessages;
-  }
-
-  addTransformations(transformations: StringFieldTransformations) {
-    this._transformations = { ...this._transformations, ...transformations };
-    return this;
-  }
-
-  build(): TRequired extends true ? ZodString : ZodNullish<ZodString> {
-    //1. Config validations
-    //1.1 Checking if both lowercase and uppercase tranformation is specified
-    if (this._transformations.isToLowerCase && this._transformations.isToUpperCase) {
-      throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.CONFLICTING_CASE_TRANSFORM, { field: this.validations.field }));
-    }
-
-    //1.2 Checking if minLength > maxLength
-    if (typeof this.validations.minLength === "number" && typeof this.validations.maxLength === "number" && this.validations.minLength > this.validations.maxLength) {
-      throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.LENGTH_RANGE, { field: this.validations.field }), {
-        meta: this.validations,
-      });
-    }
-
-    // If validation messages is not provided
-    // creating the messages using validations
-    const validationMessages = this._validationMessages ?? new StringFieldValidationErrorMsg(this.validations);
-
-    //2. Initializing schema
-    let schema: ZodString = z.string({
-      error: (issue) => {
-        if ((issue.input === undefined || issue.input === null) && this.validations.isRequired === true) return validationMessages.required;
-        if (issue.code === "invalid_type") return validationMessages.invalidType;
-        return validationMessages.invalidValue;
-      },
-    });
-
-    //4. No whitespace validation
-    if (this.validations.isNoSpaces === true) schema = schema.regex(/^\S*$/, validationMessages.noSpaces);
-
-    //3. Trim validation
-    if (this._transformations.isTrim === true) schema = schema.trim();
-
-    //5. ToLowerCase Validation
-    if (this._transformations.isToLowerCase === true) schema = schema.toLowerCase();
-
-    //6. ToUpperCase Validation
-    if (this._transformations.isToUpperCase === true) schema = schema.toUpperCase();
-
-    //7. minLength validation
-    if (typeof this.validations.minLength === "number") {
-      if (this.validations.minLength < 0)
-        throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.MIN_LENGTH, { field: this.validations.field }), {
-          meta: this.validations,
-        });
-
-      schema = schema.min(this.validations.minLength, validationMessages.minLength);
-    }
-
-    //8. maxLength validation
-    if (typeof this.validations.maxLength === "number") {
-      if (this.validations.maxLength < 0)
-        throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.MAX_LENGTH, { field: this.validations.field }), {
-          meta: this.validations,
-        });
-
-      schema = schema.max(this.validations.maxLength, validationMessages.maxLength);
-    }
-
-    return (this.validations.isRequired === true ? schema : schema.nullish()) as TRequired extends true ? ZodString : ZodNullish<ZodString>;
+export class ZodCustomError extends CustomError {
+  constructor(message: string, info?: Omit<CustomErrorInfo, "scope">) {
+    super(message, { ...info, scope: messages.ZOD.SCOPE });
   }
 }
 
-export class NumberZodSchema<TRequired extends boolean> {
-  private _validationMessages?: NumberFieldValidationErrorMsg<TRequired>;
-  private _isCoerce?: boolean;
+export type ZodNullish<T extends ZodType> = ZodOptional<ZodNullable<T>>;
 
-  constructor(
-    public readonly validations: NumberFieldValidationRule<TRequired>,
-    validationsMessages?: NumberFieldValidationErrorMsg<TRequired>,
-  ) {
-    this._validationMessages = validationsMessages;
+abstract class ZodSchema<
+  TValidations extends FieldValidations,
+  TTransformations extends FieldTransformations,
+  TFieldDefinition extends FieldDefinition<TValidations, TTransformations>,
+  TFieldValidationErrorMsg extends FieldValidationErrorMsg,
+> {
+  protected _fieldDefinition!: TFieldDefinition;
+  protected _validationMessages?: TFieldValidationErrorMsg;
+
+  constructor(fieldDefinition: TFieldDefinition, validationMessages?: TFieldValidationErrorMsg) {
+    this.fieldDefinition = fieldDefinition;
+    if (validationMessages) this._validationMessages = { ...validationMessages };
   }
 
-  get validationMessages(): Readonly<NumberFieldValidationErrorMsg<TRequired>> | undefined {
+  get fieldDefinition(): Readonly<TFieldDefinition> {
+    return this._fieldDefinition;
+  }
+
+  get validationMessages(): Readonly<TFieldValidationErrorMsg | undefined> {
     return this._validationMessages;
   }
 
-  isCoerce() {
-    this._isCoerce = true;
-    return this;
+  set fieldDefinition(fieldDefinition: TFieldDefinition) {
+    if (fieldDefinition.isAutoValidate !== true) fieldDefinition.validate();
+    this._fieldDefinition = fieldDefinition;
   }
 
-  build(): TRequired extends true ? ZodCoercedNumber : ZodNullish<ZodCoercedNumber> {
-    //-- Config Check
-    if (typeof this.validations.minValue === "number" && typeof this.validations.maxValue === "number" && this.validations.minValue > this.validations.maxValue) {
-      throw new InternalServerError(formatStr(messages.INVALID_VALIDATION.MIN_MAX_VALUE_RANGE, { field: this.validations.field }), {
-        meta: this.validations,
+  set validationMessages(validationsMessages: TFieldValidationErrorMsg | undefined) {
+    this._validationMessages = validationsMessages ? { ...validationsMessages } : validationsMessages;
+  }
+}
+
+export class StringZodSchema<
+  TFieldValidations extends StringFieldValidations,
+  TFieldTranformations extends StringFieldTransformations,
+  TFieldDefinition extends StringFieldDefinition<TFieldValidations, TFieldTranformations>,
+  TFieldValidationErrorMsg extends StringFieldValidationErrorMsg,
+> extends ZodSchema<TFieldValidations, TFieldTranformations, TFieldDefinition, TFieldValidationErrorMsg> {
+  constructor(fieldDefinition: TFieldDefinition, validationMessages?: TFieldValidationErrorMsg) {
+    super(fieldDefinition, validationMessages);
+  }
+
+  build() {
+    const validationMessages: StringFieldValidationErrorMsg = createStringFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
+    const validations: Readonly<TFieldValidations> = this._fieldDefinition.validations;
+    const transformations: Readonly<TFieldTranformations> = this._fieldDefinition.transformations;
+
+    // Constructing zod schema
+    let schema: ZodEmail | ZodString;
+    if (validations.isEmail === true) {
+      schema = z.email({
+        error: (issue) => {
+          if ((issue.input === undefined || issue.input === null) && validations.isRequired === true) return validationMessages.required;
+          if (issue.code === "invalid_format") return validationMessages.invalidEmail;
+          if (issue.code === "invalid_type") return validationMessages.invalidType;
+          return validationMessages.invalidValue;
+        },
+      });
+    } else {
+      schema = z.string({
+        error: (issue) => {
+          if ((issue.input === undefined || issue.input === null) && validations.isRequired === true) return validationMessages.required;
+          if (issue.code === "invalid_type") return validationMessages.invalidType;
+          return validationMessages.invalidValue;
+        },
       });
     }
 
-    // If validation messages is not provided
-    // creating the messages using validations
-    const validationMessages = new NumberFieldValidationErrorMsg(this.validations);
+    if (validations.isNoSpaces === true) schema = schema.regex(/^\S*$/, validationMessages.noSpaces);
+    if (transformations.isTrim === true) schema = schema.trim();
+    if (transformations.isToLowerCase === true) schema = schema.toLowerCase();
+    if (transformations.isToUpperCase === true) schema = schema.toUpperCase();
+    if (typeof validations.minLength === "number") schema = schema.min(validations.minLength, validationMessages.minLength);
+    if (typeof validations.maxLength === "number") schema = schema.max(validations.maxLength, validationMessages.maxLength);
+
+    // type SchemaType = (typeof validations)["isEmail"] extends true ? ZodEmail : ZodString;
+    // type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;
+
+    return validations.isRequired === true ? schema : schema.nullish();
+  }
+}
+
+export class NumberZodSchema<
+  TFieldValidations extends NumberFieldValidations,
+  TFieldTranformations extends NumberFieldTransformations,
+  TFieldDefinition extends NumberFieldDefinition<TFieldValidations, TFieldTranformations>,
+  TFieldValidationErrorMsg extends NumberFieldValidationErrorMsg,
+> extends ZodSchema<TFieldValidations, TFieldTranformations, TFieldDefinition, TFieldValidationErrorMsg> {
+  constructor(fieldDefinition: TFieldDefinition, validationMessages?: TFieldValidationErrorMsg) {
+    super(fieldDefinition, validationMessages);
+  }
+
+  build() {
+    const validationMessages: NumberFieldValidationErrorMsg = createNumberFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
+    const validations: Readonly<TFieldValidations> = this._fieldDefinition.validations;
+    const transformations: Readonly<TFieldTranformations> = this._fieldDefinition.transformations;
 
     const errorHandler: z.core.$ZodErrorMap = (issue) => {
-      if ((issue.input === null || issue.input === undefined) && this.validations.isRequired) return validationMessages.required;
+      if ((issue.input === null || issue.input === undefined) && validations.isRequired === true) return validationMessages.required;
       if (issue.code === "invalid_type") return validationMessages.invalidType;
       return validationMessages.invalidValue;
     };
 
-    let schema: ZodNumber = this._isCoerce ? z.coerce.number({ error: errorHandler }) : z.number({ error: errorHandler });
+    let schema: ZodNumber | ZodCoercedNumber = transformations.isCoerce === true ? z.coerce.number({ error: errorHandler }) : z.number({ error: errorHandler });
 
-    if (typeof this.validations.minValue === "number") schema = schema.min(this.validations.minValue, validationMessages.minValue);
-    if (typeof this.validations.maxValue === "number") schema = schema.max(this.validations.maxValue, validationMessages.maxValue);
+    if (typeof validations.minValue === "number") schema = schema.min(validations.minValue, validationMessages.minValue);
+    if (typeof validations.maxValue === "number") schema = schema.max(validations.maxValue, validationMessages.maxValue);
 
-    return (this.validations.isRequired === true ? schema : schema.nullish()) as TRequired extends true ? ZodCoercedNumber : ZodNullish<ZodCoercedNumber>;
+    type SchemaType = (typeof transformations)["isCoerce"] extends true ? ZodCoercedNumber : ZodNumber;
+    type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;
+
+    return validations.isRequired === true ? schema : (schema.nullish() as ReturnSchemaType);
   }
 }
-
 export class ZodHelpers {
   static parseZodError<TJoin extends boolean>(error: ZodError): string[];
   static parseZodError(error: ZodError, isJoin: boolean): string;
@@ -151,3 +141,6 @@ export class ZodHelpers {
     return isJoin ? errors.join("\n") : errors;
   }
 }
+
+// type SchemaType = (typeof validations)["isEmail"] extends true ? ZodEmail : ZodString;
+// type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;

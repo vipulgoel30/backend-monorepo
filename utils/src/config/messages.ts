@@ -13,12 +13,21 @@ export const utilsMessages = {
     INVALID_VALUE: "Invalid value provided for the field '{field}'.",
   },
 
-  INVALID_VALIDATION: {
-    MIN_LENGTH: "Invalid minLength value configured for field '{field}'. Expected a non-negative number.",
-    MAX_LENGTH: "Invalid maxLength value configured for field '{field}'. Expected a non-negative number.",
+  INVALID_VALIDATIONS: {
+    MIN_VALUE: "Invalid minValue configured for field '{field}'. Expected a finite number.",
+    MAX_VALUE: "Invalid maxValue configured for field '{field}'. Expected a finite number.",
+    MIN_LENGTH: "Invalid minLength configured for field '{field}'. Expected a non-negative safe integer.",
+    MAX_LENGTH: "Invalid maxLength configured for field '{field}'. Expected a non-negative safe integer.",
     LENGTH_RANGE: "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
-    CONFLICTING_CASE_TRANSFORM: "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
     MIN_MAX_VALUE_RANGE: "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
+  },
+
+  INVALID_TRANFORMATIONS: {
+    CONFLICTING_CASE_TRANSFORM: "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
+  },
+
+  INVALID_FIELD_DEFINITION: {
+    SCOPE: "Invalid field definition",
   },
 
   VALIDATIONS: {
@@ -30,6 +39,10 @@ export const utilsMessages = {
     SCHEMA_ERROR_FORMAT: "Entity : {entity}; Error message : {message}",
     CREATE_MONGO_URI_ERROR: "Failed to create MongoDB connection URI.",
     MONGO_CONNECT_ERROR: "Failed to connect to MongoDB.",
+  },
+
+  ZOD: {
+    SCOPE: "Zod/ZodSchema",
   },
 
   STATUS: {

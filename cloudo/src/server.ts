@@ -1,5 +1,9 @@
 import app from "./app.js";
 
+import { mongoFieldDefinitions, StringZodSchema } from "@mono/utils";
+
+const schema = new StringZodSchema(mongoFieldDefinitions.username).build();
+
 (async () => {
   try {
     const port = process.env.PORT;

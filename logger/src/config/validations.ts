@@ -1,29 +1,46 @@
 // User imports
-import type { StringFieldValidationRule } from "@mono/utils";
+import { FieldTypes, type FieldValidationTransformation } from "@mono/utils";
 
-export const fieldValidations = {
+export const fieldValidationsTransformations = {
   user: {
     name: {
-      type: "string",
-      field: "name",
-      isTrim: true,
-      isRequired: true,
-      minLength: 1,
-      maxLength: 100,
-    } satisfies StringFieldValidationRule<true>,
+      validations: {
+        type: FieldTypes.string,
+        field: "Name",
+        isRequired: true,
+        minLength: 1,
+        maxLength: 100,
+      },
+      transformations: {
+        isTrim: true,
+      },
+    } satisfies FieldValidationTransformation<true, FieldTypes.string>,
     email: {
-      type: "string",
-      field: "email",
-      isRequired: true,
-      isTrim: true,
-    } satisfies StringFieldValidationRule<true>,
+      validations: {
+        type: FieldTypes.email,
+        field: "Email",
+        isRequired: true,
+      },
+      transformations: {
+        isTrim: true,
+        isToLowerCase: true,
+      },
+    } satisfies FieldValidationTransformation<true, FieldTypes.email>,
     password: {
-      type: "string",
-      field: "password",
-      isRequired: true,
-      minLength: 8,
-      maxLength: 50,
-      isNoSpaces: true,
-    } satisfies StringFieldValidationRule<true>,
+      validations: {
+        type: FieldTypes.string,
+        field: "Password",
+        isRequired: true,
+        minLength: 8,
+        maxLength: 50,
+        isNoSpaces: true,
+      },
+      transformations: {},
+    } satisfies FieldValidationTransformation<true, FieldTypes.string>,
+    confirmPassword: {
+      validations: {
+        field: "Confirm Password",
+      },
+    },
   },
-};
+} as const;

@@ -1,87 +1,96 @@
-// Third party imports
-import { Schema, type SchemaTypeOptions } from "mongoose";
+// // Third party imports
+// import type { SchemaTypeOptions } from "mongoose";
 
-// User imports
-import { utilsMessages as messages } from "../../config/messages.ts";
-import { MongoError } from "./mongo.ts";
-import { formatStr } from "../../utils.ts";
+// // User imports
+// import { FieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../../types.ts";
+// import { FieldDefinition, StringFieldDefinition } from "../../classes/FieldDefinition.ts";
+// import { FieldValidations, StringFieldValidations } from "../../classes/FieldValidations.ts";
+// import { FieldTransformations, StringFieldTransformations } from "../../classes/FieldTransformations.ts";
+// import { createStringFieldValidationErrorMsg } from "./../../classes/FieldValidationErrorMsgs.ts";
 
-class CreateMongoSchema<T> {
-  protected schema: SchemaTypeOptions<T>;
+// abstract class MongoSchema<
+//   TValidations extends FieldValidations,
+//   TTransformations extends FieldTransformations,
+//   TFieldDefinition extends FieldDefinition<TValidations, TTransformations>,
+//   TFieldValidationErrorMsgs extends FieldValidationErrorMsg,
+//   SchemaType,
+// > {
+//   protected _fieldDefinition!: TFieldDefinition;
+//   protected _validationMessages?: TFieldValidationErrorMsgs;
+//   protected _entity!: string;
+//   protected _customValidations: { validator: (value: SchemaType) => boolean; message: string }[];
 
+//   constructor(fieldDefinition: TFieldDefinition, entity: string, validationMessages?: TFieldValidationErrorMsgs) {
+//     this.fieldDefinition = fieldDefinition;
+//     this.validationMessages = validationMessages;
+//     this.entity = entity;
+//     this._customValidations = [];
+//   }
 
-  constructor(
-    protected readonly field: string,
-    protected readonly entity: string,
-    type: SchemaTypeOptions<T>["type"],
-  ) {
-    this.schema = { type };
-  }
+//   get fieldDefinition(): Readonly<TFieldDefinition> {
+//     return this._fieldDefinition;
+//   }
 
-  required(isRequired?: boolean) {
-    if (isRequired === true) this.schema.required = [true, formatStr(messages.FIELD.REQUIRED, { field: this.field })];
-    return this;
-  }
+//   set fieldDefinition(fieldDefinition: TFieldDefinition) {
+//     if (fieldDefinition.isAutoValidate !== true) fieldDefinition.validate();
+//     this._fieldDefinition = fieldDefinition;
+//   }
 
-  validate(validationFn: (value: T) => boolean, message: string) {
-    if (!this.schema.validate) {
-      this.schema.validate = [];
-    }
+//   setFieldDefinition(fieldDefinition: TFieldDefinition) {
+//     this.fieldDefinition = fieldDefinition;
+//     return this;
+//   }
 
-    (this.schema.validate as any[]).push({
-      validator: validationFn,
-      message,
-    });
+//   get validationMessages(): Readonly<TFieldValidationErrorMsgs | undefined> {
+//     return this._validationMessages;
+//   }
 
-    return this;
-  }
+//   set validationMessages(validationMessages: TFieldValidationErrorMsgs | undefined) {
+//     this._validationMessages = validationMessages ? { ...validationMessages } : undefined;
+//   }
 
-  build(): SchemaTypeOptions<T> {
-    return this.schema;
-  }
-}
+//   setValidationMessages(validationMessages: TFieldValidationErrorMsgs | undefined) {
+//     this.validationMessages = validationMessages;
+//     return this;
+//   }
 
-export class CreateMongoStringSchema extends CreateMongoSchema<string> {
-  constructor(field: string, entity: string) {
-    super(field, entity, Schema.Types.String);
-  }
+//   get entity(): string {
+//     return this._entity;
+//   }
 
-  trim(isTrim?: boolean) {
-    if (isTrim === true) this.schema.trim = true;
-    return this;
-  }
+//   set entity(entity: string) {
+//     this._entity = entity;
+//   }
 
-  minLength(minLength?: number) {
-    if (typeof minLength === "number") {
-      // Checking if in-length is valid or not
-      if (minLength < 0) {
-        throw new MongoError(formatStr(messages.INVALID_VALIDATION.MIN_LENGTH, { field: this.field }), { meta: { entity: this.entity } });
-      }
+//   setEntity(entity: string) {
+//     this.entity = entity;
+//     return this;
+//   }
+// }
 
-      this.schema.minlength = [minLength, formatStr(messages.FIELD.MIN_LENGTH, { field: this.field, minLength: minLength })];
-    }
+// export class StringMongoSchema extends MongoSchema<StringFieldValidations, StringFieldTransformations, StringFieldDefinition, StringFieldValidationErrorMsg, String> {
+//   constructor(fieldDefinition: StringFieldDefinition, entity: string, validationMessages?: StringFieldValidationErrorMsg) {
+//     super(fieldDefinition, entity, validationMessages);
+//   }
 
-    return this;
-  }
+//   schema(): SchemaTypeOptions<String> {
+//     const validationMessages: StringFieldValidationErrorMsg = createStringFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
+//     const validations: Readonly<StringFieldValidations> = this._fieldDefinition.validations;
+//     const transformations: Readonly<StringFieldTransformations> = this._fieldDefinition.transformations;
 
-  maxLength(maxLength?: number) {
-    if (typeof maxLength === "number") {
-      // Checking if max-length is valid or not
-      if (maxLength < 0) {
-        throw new MongoError(formatStr(messages.INVALID_VALIDATION.MAX_LENGTH, { field: this.field }), { meta: { entity: this.entity } });
-      }
+//     const schema: SchemaTypeOptions<String> = { type: "string" };
+//     if (typeof validations.minLength === "number") schema.minLength = [validations.minLength, validationMessages.minLength!];
 
-      this.schema.maxlength = [maxLength, formatStr(messages.FIELD.MAX_LENGTH, { field: this.field, maxLength: maxLength })];
-    }
+//     if (typeof validations.maxLength === "number") schema.maxLength = [validations.maxLength, validationMessages.maxLength!];
 
-    return this;
-  }
+//     if (this._customValidations.length > 0) {
+//       schema.validate = this._customValidations;
+//     }
 
-  aggregateValidations(options: { isTrim?: boolean; required?: boolean; minLength?: number; maxLength?: number }) {
-    this.trim(options.isTrim);
-    this.required(options.required);
-    this.minLength(options.minLength);
-    this.maxLength(options.maxLength);
-    return this;
-  }
-}
+//     if (validations?.isRequired === true) schema.required = [true, validationMessages.required!];
+
+//     if (transformations?.isTrim === true) schema.trim = true;
+
+//     return schema;
+//   }
+// }

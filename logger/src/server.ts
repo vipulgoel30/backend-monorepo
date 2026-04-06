@@ -19,6 +19,7 @@ const initServer = async () => {
   try {
     // Connecting with MongoDb using mongoose connect()
     logger.info(messages.MONGO.CONNECT_INIT);
+
     const mongoConnectUriConfig: CreateMongoUriConfig = {
       hostname: process.env.MONGO_HOSTNAME,
       port: process.env.MONGO_PORT,
