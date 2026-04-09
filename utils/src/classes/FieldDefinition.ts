@@ -11,7 +11,7 @@ class FieldDefinitionValidatorCustomError extends CustomError {
   }
 }
 
-export abstract class FieldDefinition<TValidations extends FieldValidations, TTransformations extends FieldTransformations> {
+export abstract class FieldDefinition<TValidations extends FieldValidations<any>, TTransformations extends FieldTransformations> {
   protected _validations!: TValidations;
   protected _transformations!: TTransformations;
   protected _isAutoValidate: boolean = true;
@@ -59,10 +59,10 @@ export abstract class FieldDefinition<TValidations extends FieldValidations, TTr
   }
 }
 
-export class StringFieldDefinition<TStringFieldValidation extends StringFieldValidations, TStringFieldTranforamtions extends StringFieldTransformations> extends FieldDefinition<
-  TStringFieldValidation,
-  TStringFieldTranforamtions
-> {
+export class StringFieldDefinition<
+  TStringFieldValidation extends StringFieldValidations<any, any, any>,
+  TStringFieldTranforamtions extends StringFieldTransformations<any, any, any>,
+> extends FieldDefinition<TStringFieldValidation, TStringFieldTranforamtions> {
   constructor(validations: TStringFieldValidation, transformations: TStringFieldTranforamtions) {
     super(validations, transformations);
   }
@@ -92,10 +92,10 @@ export class StringFieldDefinition<TStringFieldValidation extends StringFieldVal
   }
 }
 
-export class NumberFieldDefinition<TNumberFieldValidation extends NumberFieldValidations, TNumberFieldTransformations extends NumberFieldTransformations> extends FieldDefinition<
-  TNumberFieldValidation,
-  TNumberFieldTransformations
-> {
+export class NumberFieldDefinition<
+  TNumberFieldValidation extends NumberFieldValidations<any>,
+  TNumberFieldTransformations extends NumberFieldTransformations<any>,
+> extends FieldDefinition<TNumberFieldValidation, TNumberFieldTransformations> {
   constructor(validations: TNumberFieldValidation, transformations: TNumberFieldTransformations) {
     super(validations, transformations);
   }
@@ -117,6 +117,4 @@ export class NumberFieldDefinition<TNumberFieldValidation extends NumberFieldVal
   }
 }
 
-export type TFieldDefinitionsUnion =
-  | StringFieldDefinition<StringFieldValidations, StringFieldTransformations>
-  | NumberFieldDefinition<NumberFieldValidations, NumberFieldTransformations>;
+export type TFieldDefinitionsUnion = StringFieldDefinition<any, any> | NumberFieldDefinition<any, any>;

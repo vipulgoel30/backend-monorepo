@@ -52,7 +52,7 @@ export const mongoFieldDefinitions = {
       isTrim: true,
     }),
   ),
-  port: new NumberFieldDefinition(utilValidations.port.setField("Mongo Configuration : Port").setIsRequired(true), utilTransformations.port.setIsCoerce(false)),
+  port: new NumberFieldDefinition(utilValidations.port.setField("Mongo Configuration : Port"), utilTransformations.port),
 
   database: new StringFieldDefinition(
     new StringFieldValidations("Mongo Configuration : Database", {

@@ -12,4 +12,8 @@ export default {
   },
 
   BCRYPT_HASH_SALT: 10,
+
+  ENTITY_NAMES: {
+    USER: "Users",
+  },
 } as const;

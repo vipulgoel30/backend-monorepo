@@ -3,28 +3,23 @@ import { z, type ZodString, type ZodType, type ZodOptional, type ZodNullable, Zo
 
 // User imports
 import type { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types.ts";
-import { CustomError, CustomErrorInfo } from "./../errors/CustomError.ts";
-import { utilsMessages as messages } from "./../config/messages.ts";
 import { createNumberFieldValidationErrorMsg, createStringFieldValidationErrorMsg } from "./../classes/FieldValidationErrorMsgs.ts";
 import { FieldDefinition, NumberFieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
 import { FieldValidations, NumberFieldValidations, StringFieldValidations } from "./FieldValidations.ts";
 import { FieldTransformations, NumberFieldTransformations, StringFieldTransformations } from "./FieldTransformations.ts";
-// import { mongoFieldDefinitions } from "../config/definitions.ts";
 
-export class ZodCustomError extends CustomError {
-  constructor(message: string, info?: Omit<CustomErrorInfo, "scope">) {
-    super(message, { ...info, scope: messages.ZOD.SCOPE });
+export class ZodHelpers {
+  static parseZodError<TJoin extends boolean>(error: ZodError): string[];
+  static parseZodError(error: ZodError, isJoin: boolean): string;
+  static parseZodError(error: ZodError, isJoin?: boolean): string[] | string {
+    const errors = error.issues.map((issue) => issue.message);
+    return isJoin ? errors.join("\n") : errors;
   }
 }
 
 export type ZodNullish<T extends ZodType> = ZodOptional<ZodNullable<T>>;
 
-abstract class ZodSchema<
-  TValidations extends FieldValidations,
-  TTransformations extends FieldTransformations,
-  TFieldDefinition extends FieldDefinition<TValidations, TTransformations>,
-  TFieldValidationErrorMsg extends FieldValidationErrorMsg,
-> {
+abstract class ZodSchema<TFieldDefinition extends FieldDefinition<FieldValidations<any>, FieldTransformations>, TFieldValidationErrorMsg extends FieldValidationErrorMsg> {
   protected _fieldDefinition!: TFieldDefinition;
   protected _validationMessages?: TFieldValidationErrorMsg;
 
@@ -52,19 +47,17 @@ abstract class ZodSchema<
 }
 
 export class StringZodSchema<
-  TFieldValidations extends StringFieldValidations,
-  TFieldTranformations extends StringFieldTransformations,
-  TFieldDefinition extends StringFieldDefinition<TFieldValidations, TFieldTranformations>,
+  TFieldDefinition extends StringFieldDefinition<StringFieldValidations<any, any, any>, StringFieldTransformations<any, any, any>>,
   TFieldValidationErrorMsg extends StringFieldValidationErrorMsg,
-> extends ZodSchema<TFieldValidations, TFieldTranformations, TFieldDefinition, TFieldValidationErrorMsg> {
+> extends ZodSchema<TFieldDefinition, TFieldValidationErrorMsg> {
   constructor(fieldDefinition: TFieldDefinition, validationMessages?: TFieldValidationErrorMsg) {
     super(fieldDefinition, validationMessages);
   }
 
   build() {
     const validationMessages: StringFieldValidationErrorMsg = createStringFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
-    const validations: Readonly<TFieldValidations> = this._fieldDefinition.validations;
-    const transformations: Readonly<TFieldTranformations> = this._fieldDefinition.transformations;
+    const validations: Readonly<TFieldDefinition["validations"]> = this._fieldDefinition.validations;
+    const transformations: Readonly<TFieldDefinition["transformations"]> = this._fieldDefinition.transformations;
 
     // Constructing zod schema
     let schema: ZodEmail | ZodString;
@@ -94,27 +87,25 @@ export class StringZodSchema<
     if (typeof validations.minLength === "number") schema = schema.min(validations.minLength, validationMessages.minLength);
     if (typeof validations.maxLength === "number") schema = schema.max(validations.maxLength, validationMessages.maxLength);
 
-    // type SchemaType = (typeof validations)["isEmail"] extends true ? ZodEmail : ZodString;
-    // type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;
+    type SchemaType = (typeof validations)["isEmail"] extends true ? ZodEmail : ZodString;
+    type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;
 
-    return validations.isRequired === true ? schema : schema.nullish();
+    return (validations.isRequired === true ? schema : schema.nullish()) as ReturnSchemaType;
   }
 }
 
 export class NumberZodSchema<
-  TFieldValidations extends NumberFieldValidations,
-  TFieldTranformations extends NumberFieldTransformations,
-  TFieldDefinition extends NumberFieldDefinition<TFieldValidations, TFieldTranformations>,
+  TFieldDefinition extends NumberFieldDefinition<NumberFieldValidations<any>, NumberFieldTransformations<any>>,
   TFieldValidationErrorMsg extends NumberFieldValidationErrorMsg,
-> extends ZodSchema<TFieldValidations, TFieldTranformations, TFieldDefinition, TFieldValidationErrorMsg> {
+> extends ZodSchema<TFieldDefinition, TFieldValidationErrorMsg> {
   constructor(fieldDefinition: TFieldDefinition, validationMessages?: TFieldValidationErrorMsg) {
     super(fieldDefinition, validationMessages);
   }
 
   build() {
     const validationMessages: NumberFieldValidationErrorMsg = createNumberFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
-    const validations: Readonly<TFieldValidations> = this._fieldDefinition.validations;
-    const transformations: Readonly<TFieldTranformations> = this._fieldDefinition.transformations;
+    const validations: Readonly<TFieldDefinition["validations"]> = this._fieldDefinition.validations;
+    const transformations: Readonly<TFieldDefinition["transformations"]> = this._fieldDefinition.transformations;
 
     const errorHandler: z.core.$ZodErrorMap = (issue) => {
       if ((issue.input === null || issue.input === undefined) && validations.isRequired === true) return validationMessages.required;
@@ -130,17 +121,6 @@ export class NumberZodSchema<
     type SchemaType = (typeof transformations)["isCoerce"] extends true ? ZodCoercedNumber : ZodNumber;
     type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;
 
-    return validations.isRequired === true ? schema : (schema.nullish() as ReturnSchemaType);
+    return (validations.isRequired === true ? schema : schema.nullish()) as ReturnSchemaType;
   }
 }
-export class ZodHelpers {
-  static parseZodError<TJoin extends boolean>(error: ZodError): string[];
-  static parseZodError(error: ZodError, isJoin: boolean): string;
-  static parseZodError(error: ZodError, isJoin?: boolean): string[] | string {
-    const errors = error.issues.map((issue) => issue.message);
-    return isJoin ? errors.join("\n") : errors;
-  }
-}
-
-// type SchemaType = (typeof validations)["isEmail"] extends true ? ZodEmail : ZodString;
-// type ReturnSchemaType = (typeof validations)["isRequired"] extends true ? SchemaType : ZodNullish<SchemaType>;

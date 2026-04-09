@@ -32,7 +32,7 @@ export abstract class FieldTransformations {
   abstract clone(): any;
 }
 
-export class StringFieldTransformations<TTrim extends boolean = any, TToLowerCase extends boolean = any, TToUpperCase extends boolean = any> extends FieldTransformations {
+export class StringFieldTransformations<TTrim extends boolean, TToLowerCase extends boolean, TToUpperCase extends boolean> extends FieldTransformations {
   private _isTrim: TTrim;
   private _isToLowerCase: TToLowerCase;
   private _isToUpperCase: TToUpperCase;
@@ -111,7 +111,7 @@ export class StringFieldTransformations<TTrim extends boolean = any, TToLowerCas
   }
 }
 
-export class NumberFieldTransformations<TCoerce extends boolean = any> extends FieldTransformations {
+export class NumberFieldTransformations<TCoerce extends boolean> extends FieldTransformations {
   private _isCoerce: TCoerce;
 
   get isCoerce() {

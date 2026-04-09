@@ -20,7 +20,7 @@ export interface TNumberFieldValidationConstructorOptions<TRequired extends bool
   maxValue?: number;
 }
 
-export abstract class FieldValidations<TRequired extends boolean = any> {
+export abstract class FieldValidations<TRequired extends boolean> {
   protected _field: string;
   protected readonly _type: FieldTypes;
   protected _isRequired: TRequired;
@@ -72,7 +72,7 @@ export abstract class FieldValidations<TRequired extends boolean = any> {
   abstract clone(): any;
 }
 
-export class StringFieldValidations<TRequired extends boolean = any, TNoSpaces extends boolean = any, TEmail extends boolean = any> extends FieldValidations<TRequired> {
+export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends boolean, TEmail extends boolean> extends FieldValidations<TRequired> {
   private _minLength?: number;
   private _maxLength?: number;
   private _isNoSpaces: TNoSpaces;
@@ -170,7 +170,7 @@ export class StringFieldValidations<TRequired extends boolean = any, TNoSpaces e
   }
 }
 
-export class NumberFieldValidations<TRequired extends boolean = any> extends FieldValidations<TRequired> {
+export class NumberFieldValidations<TRequired extends boolean> extends FieldValidations<TRequired> {
   private _minValue?: number;
   private _maxValue?: number;
 

@@ -5,10 +5,14 @@ import { FieldTransformations } from "./FieldTransformations.ts";
 import { FieldValidations } from "./FieldValidations.ts";
 import { ValidationErrorMsgs } from "./ValidationErrorMsgs.ts";
 
-export const createBaseFieldValidationErrorMsg = <TValidations extends FieldValidations, TTransformations extends FieldTransformations>(
+export const createBaseFieldValidationErrorMsg = <TValidations extends FieldValidations<any>, TTransformations extends FieldTransformations>(
   fieldDefinition: FieldDefinition<TValidations, TTransformations>,
   defaultMessages?: FieldValidationErrorMsg,
 ): FieldValidationErrorMsg => {
+  // Validating field definition before generating error messages
+  // if auto validation is disabled in field definition
+  if (fieldDefinition.isAutoValidate !== true) fieldDefinition.validate();
+
   return {
     invalidValue: ValidationErrorMsgs.invalidValue(fieldDefinition.validations.field, defaultMessages?.invalidValue),
     invalidType: ValidationErrorMsgs.invalidType(fieldDefinition.validations.field, fieldDefinition.validations.type, defaultMessages?.invalidType),
