@@ -39,6 +39,8 @@ export const utilsMessages = {
     SCHEMA_ERROR_FORMAT: "Entity : {entity}; Error message : {message}",
     CREATE_MONGO_URI_ERROR: "Failed to create MongoDB connection URI.",
     MONGO_CONNECT_ERROR: "Failed to connect to MongoDB.",
+    INDEX_CREATION_ERROR: "Error occurred while creating the index for entity: {entity}.",
+    INDEX_CREATION_SUCCESS: "Indexes were created successfully for entity: {entity}.",
   },
 
   ZOD: {
@@ -52,4 +54,8 @@ export const utilsMessages = {
 
   ERROR_FORMAT: "{defaultMessage}; Error : {errorMsg}",
   DEFAULT_ERROR_MESSAGE: "Uhh!!! Something went wrong on the server.",
+
+  REDIS: {
+    SCOPE: "Redis",
+  },
 } as const;

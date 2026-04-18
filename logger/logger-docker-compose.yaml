@@ -25,7 +25,8 @@ services:
     ports:
       - "6379:6379" # redis-server
       - "8001:8001" # redis-insights
-
+    environment:
+      REDIS_ARGS: "--requirepass redis-stack" # username : default password : redis-stack
 volumes:
   logger_volume:
     driver: local

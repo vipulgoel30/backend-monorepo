@@ -3,8 +3,9 @@ import { utilsConstants as constants } from "../config/constants.ts";
 import { utilsMessages as messages } from "../config/messages.ts";
 
 export interface DeveloperError<MetaType> {
-  message?: string;
-  statusCode?: number;
+  message: string;
+  scope: string;
+  statusCode: number;
   meta?: MetaType;
 }
 

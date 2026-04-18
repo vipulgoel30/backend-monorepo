@@ -1,9 +1,13 @@
+// Initializing logger for the util server
+import logger from "./utils/logger.js";
+import { setLogger } from "@mono/utils";
+setLogger(logger);
+
 // User imports
 import app from "./app.js";
 import { createMongoUri, CustomError, formatErrMessage, formatStr, getErrMessage, isPortAsStr, mongoConnect, type CreateMongoUriConfig } from "@mono/utils";
 import { retryAsync } from "./utils/utils.js";
 import messages from "./config/messages.js";
-import logger from "./utils/logger.js";
 
 process.on("uncaughtException", (error) => {
   console.error(formatErrMessage("uncaughtException".toUpperCase(), error));

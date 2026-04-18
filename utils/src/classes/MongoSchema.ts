@@ -88,17 +88,14 @@ export class StringMongoSchema<
     const transformations: Readonly<TFieldDefinition["transformations"]> = this._fieldDefinition.transformations;
 
     const schema: SchemaTypeOptions<string> = { type: "string" };
+    if (transformations?.isTrim === true) schema.trim = true;
+
     if (typeof validations.minLength === "number") schema.minLength = [validations.minLength, validationMessages.minLength!];
-
     if (typeof validations.maxLength === "number") schema.maxLength = [validations.maxLength, validationMessages.maxLength!];
-
     if (this._customValidations.length > 0) {
       schema.validate = this._customValidations;
     }
-
     if (validations?.isRequired === true) schema.required = [true, validationMessages.required!];
-
-    if (transformations?.isTrim === true) schema.trim = true;
 
     return schema;
   }

@@ -11,4 +11,5 @@ export const utilsSettings = {
   },
 
   MONGO_URI: "mongodb://{username}:{password}@{hostname}:{port}/{database}",
+  REDIS_URL: "redis://{username}:{password}@{hostname}:{port}",
 } as const;

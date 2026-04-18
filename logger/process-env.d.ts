@@ -13,6 +13,14 @@ declare global {
       MONGO_USERNAME: string;
       MONGO_PASSWORD: string;
       MONGO_DB: string;
+
+      KAFKA_CLIENT_ID: string;
+      KAFKA_BROKER: string;
+
+      REDIS_USERNAME: string;
+      REDIS_PASSWORD: string;
+      REDIS_URL: string;
+      REDIS_PORT: string;
     }
   }
 }

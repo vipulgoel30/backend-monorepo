@@ -63,3 +63,31 @@ export const mongoFieldDefinitions = {
     new StringFieldTransformations({ ...StringFieldTransformations.getDefaultConstructorOptions(), isTrim: true }),
   ),
 } satisfies Record<string, TFieldDefinitionsUnion>;
+
+export const redisUrlConfigurationFieldDefinitions = {
+  username: new StringFieldDefinition(
+    new StringFieldValidations("Redis Configuration : Username", {
+      ...StringFieldValidations.getDefaultConstructorOptions(),
+      isRequired: true,
+      minLength: 1,
+    }),
+    new StringFieldTransformations({ ...StringFieldTransformations.getDefaultConstructorOptions(), isTrim: true }),
+  ),
+  password: new StringFieldDefinition(
+    new StringFieldValidations("Redis Configuration : Password", {
+      ...StringFieldValidations.getDefaultConstructorOptions(),
+      isRequired: true,
+      minLength: 1,
+    }),
+    new StringFieldTransformations({ ...StringFieldTransformations.getDefaultConstructorOptions(), isTrim: true }),
+  ),
+  hostname: new StringFieldDefinition(
+    new StringFieldValidations("Redis Configuration : Hostname", {
+      ...StringFieldValidations.getDefaultConstructorOptions(),
+      isRequired: true,
+      minLength: 1,
+    }),
+    new StringFieldTransformations({ ...StringFieldTransformations.getDefaultConstructorOptions(), isTrim: true }),
+  ),
+  port: new NumberFieldDefinition(utilValidations.port.setField("Redis Configuration : Port"), utilTransformations.port),
+};

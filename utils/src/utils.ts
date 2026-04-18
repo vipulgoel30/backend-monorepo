@@ -6,8 +6,13 @@ import { CustomError } from "./errors/CustomError.ts";
 import { utilsMessages as messages } from "./config/messages.ts";
 import { NumberZodSchema, ZodHelpers } from "./classes/Zod.ts";
 import { NumberFieldDefinition } from "./classes/FieldDefinition.ts";
-import { Primitive } from "./types.ts";
+import { Logger, Primitive } from "./types.ts";
 import { utilTransformations, utilValidations } from "./exports.ts";
+
+export let logger: Logger | null = null;
+export const setLogger = (customLogger: Logger) => {
+  logger = customLogger;
+};
 
 export function isPortAsStr(port: string, schema: ZodCoercedNumber): number;
 export function isPortAsStr(port: string, field: string): number;

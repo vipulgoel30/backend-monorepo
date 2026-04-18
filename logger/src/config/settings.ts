@@ -16,4 +16,12 @@ export default {
   ENTITY_NAMES: {
     USER: "Users",
   },
-} as const;
+
+  KAFKA: {
+    CONNECT: {
+      RETRY: 10,
+      INTERVAL: 100,
+      MAX_INTERVAL: 1000,
+    },
+  },
+};
