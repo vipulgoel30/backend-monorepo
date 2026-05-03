@@ -1,5 +1,5 @@
 // User imports
-import { getErrMessage } from "../utils.ts";
+import { getErrorMessage } from "../utils.ts";
 
 export interface CustomErrorInfo<MetaType extends Record<string, any> = Record<string, any>> {
   scope?: string;
@@ -19,7 +19,7 @@ export class CustomError extends Error {
     return {
       ...this.info?.meta,
       ...(this.info?.scope && { scope: this.info.scope }),
-      ...(this.info?.error && { error: getErrMessage(this.info.error) }),
+      ...(this.info?.error && { error: getErrorMessage(this.info.error) }),
     };
   }
 }

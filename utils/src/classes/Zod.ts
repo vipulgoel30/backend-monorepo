@@ -2,7 +2,7 @@
 import { z, type ZodString, type ZodType, type ZodOptional, type ZodNullable, ZodCoercedNumber, ZodNumber, ZodEmail, type ZodError } from "zod";
 
 // User imports
-import type { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types.ts";
+import type { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types/types.ts";
 import { createNumberFieldValidationErrorMsg, createStringFieldValidationErrorMsg } from "./../classes/FieldValidationErrorMsgs.ts";
 import { FieldDefinition, NumberFieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
 import { FieldValidations, NumberFieldValidations, StringFieldValidations } from "./FieldValidations.ts";

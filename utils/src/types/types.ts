@@ -3,6 +3,7 @@ export type Primitive = string | number | boolean | null | undefined | bigint | 
 export enum FieldTypes {
   string = "string",
   number = "number",
+  array = "array",
 }
 
 export type ExtractClassFields<T> = Pick<

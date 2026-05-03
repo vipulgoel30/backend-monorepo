@@ -7,12 +7,7 @@ const defaultRetryAsyncOptions = {
   defaultMaxInterval: settings.RETRY.MAX_INTERVAL,
 };
 
-const retryAsync = async <T = any>(
-  operation: () => Promise<T>,
-  retries: number,
-  interval: number,
-  maxInterval: number,
-): Promise<T> => {
+export const retryAsync = async <T>(operation: () => Promise<T>, retries: number, interval: number, maxInterval: number): Promise<T> => {
   try {
     return await operation();
   } catch (error) {
@@ -25,14 +20,9 @@ const retryAsync = async <T = any>(
   }
 };
 
-const retryAsyncWrapper =
+export const retryAsyncWrapper =
   (options = defaultRetryAsyncOptions) =>
-  async <T = any>(
-    operation: () => Promise<T>,
-    retries = options.defaultRetries,
-    interval = options.defaultInterval,
-    maxInterval = options.defaultMaxInterval,
-  ): Promise<T> =>
-    retryAsync(operation, retries, interval, maxInterval);
+  async <T>(operation: () => Promise<T>, retries = options.defaultRetries, interval = options.defaultInterval, maxInterval = options.defaultMaxInterval): Promise<T> =>
+    retryAsync<T>(operation, retries, interval, maxInterval);
 
-export { retryAsyncWrapper };
+export type TRetryAsyncF = ReturnType<typeof retryAsyncWrapper>;

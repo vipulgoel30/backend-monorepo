@@ -1,4 +1,5 @@
-import { FieldTypes } from "../types.ts";
+// User imports
+import { FieldTypes } from "../types/types.ts";
 
 export interface TFieldValidationConstructorOptions<TRequired extends boolean> {
   isRequired: TRequired;
@@ -18,6 +19,12 @@ export interface TStringFieldValidationConstructorOptions<
 export interface TNumberFieldValidationConstructorOptions<TRequired extends boolean> extends TFieldValidationConstructorOptions<TRequired> {
   minValue?: number;
   maxValue?: number;
+}
+
+export interface TArrayFieldValidationConstructorOptions<TRequired extends boolean> extends TFieldValidationConstructorOptions<TRequired> {
+  length?: number;
+  minLength?: number;
+  maxLength?: number;
 }
 
 export abstract class FieldValidations<TRequired extends boolean> {
@@ -55,7 +62,7 @@ export abstract class FieldValidations<TRequired extends boolean> {
     };
   }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {
       field: this._field,
       type: this._type,
@@ -159,7 +166,7 @@ export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends
     return new StringFieldValidations(this._field, this.getCurrentConstructorOptions());
   }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
       minLength: this._minLength,
@@ -174,11 +181,11 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
   private _minValue?: number;
   private _maxValue?: number;
 
-  get minValue() {
+  get minValue(): number | undefined {
     return this._minValue;
   }
 
-  get maxValue() {
+  get maxValue(): number | undefined {
     return this._maxValue;
   }
 
@@ -227,7 +234,7 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
     return new NumberFieldValidations(this._field, this.getCurrentConstructorOptions());
   }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
       minValue: this._minValue,
@@ -236,4 +243,83 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
   }
 }
 
-export type TFieldValidationsUnion = StringFieldValidations<any, any, any> | NumberFieldValidations<any>;
+export class ArrayFieldValidations<TRequired extends boolean> extends FieldValidations<TRequired> {
+  private _length?: number;
+  private _minLength?: number;
+  private _maxLength?: number;
+
+  constructor(field: string, options: TArrayFieldValidationConstructorOptions<TRequired>) {
+    super(field, FieldTypes.array, { isRequired: options.isRequired });
+    if (typeof options?.length === "number") this._length = options.length;
+    if (typeof options?.minLength === "number") this._minLength = options.minLength;
+    if (typeof options?.maxLength === "number") this._maxLength = options.maxLength;
+  }
+
+  get length(): number | undefined {
+    return this._length;
+  }
+
+  get minLength(): number | undefined {
+    return this._minLength;
+  }
+
+  get maxLength(): number | undefined {
+    return this._maxLength;
+  }
+
+  protected getCurrentConstructorOptions(): TArrayFieldValidationConstructorOptions<TRequired> {
+    return {
+      ...super.getCurrentConstructorOptions(),
+      length: this._length,
+      minLength: this._minLength,
+      maxLength: this._maxLength,
+    };
+  }
+
+  static getDefaultConstructorOptions(): TArrayFieldValidationConstructorOptions<false> {
+    return {
+      ...super.getDefaultConstructorOptions(),
+      length: undefined,
+      minLength: undefined,
+      maxLength: undefined,
+    };
+  }
+
+  setField(field: string) {
+    return new ArrayFieldValidations(field, this.getCurrentConstructorOptions());
+  }
+
+  setIsRequired<TRequiredCur extends boolean>(isRequired: TRequiredCur) {
+    return new ArrayFieldValidations(this._field, {
+      ...this.getCurrentConstructorOptions(),
+      isRequired,
+    });
+  }
+
+  setLength(length: number) {
+    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), length });
+  }
+
+  setMinLength(minLength: number) {
+    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), minLength });
+  }
+
+  setMaxLength(maxLength: number) {
+    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), maxLength });
+  }
+
+  clone() {
+    return new ArrayFieldValidations(this._field, this.getCurrentConstructorOptions());
+  }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      length: this._length,
+      minLength: this._minLength,
+      maxLength: this._maxLength,
+    };
+  }
+}
+
+export type TFieldValidationsUnion = StringFieldValidations<any, any, any> | NumberFieldValidations<any> | ArrayFieldValidations<any>;

@@ -1,6 +1,6 @@
 // User imports
-import { FieldValidations, NumberFieldValidations, StringFieldValidations } from "./FieldValidations.ts";
-import { FieldTransformations, NumberFieldTransformations, StringFieldTransformations } from "./FieldTransformations.ts";
+import { ArrayFieldValidations, FieldValidations, NumberFieldValidations, StringFieldValidations } from "./FieldValidations.ts";
+import { ArrayFieldTransformations, FieldTransformations, NumberFieldTransformations, StringFieldTransformations } from "./FieldTransformations.ts";
 import { CustomError, CustomErrorInfo } from "../errors/CustomError.ts";
 import { utilsMessages as messages } from "./../config/messages.ts";
 import { formatStr } from "../utils.ts";
@@ -16,20 +16,10 @@ export abstract class FieldDefinition<TValidations extends FieldValidations<any>
   protected _transformations!: TTransformations;
   protected _isAutoValidate: boolean = true;
 
-  constructor(validations: TValidations, transformations: TTransformations, isAutoValidate: boolean = true) {
+  constructor(validations: TValidations, transformations: TTransformations, isAutoValidate: boolean) {
     this._validations = validations;
     this._transformations = transformations;
     this._isAutoValidate = isAutoValidate;
-    if (this.isAutoValidate) this.validate();
-  }
-
-  private set validations(validations: TValidations) {
-    this._validations = validations.clone();
-    if (this._isAutoValidate) this.validate();
-  }
-
-  private set transformations(transformations: TTransformations) {
-    this._transformations = transformations.clone();
     if (this._isAutoValidate) this.validate();
   }
 
@@ -63,23 +53,23 @@ export class StringFieldDefinition<
   TStringFieldValidation extends StringFieldValidations<any, any, any>,
   TStringFieldTranforamtions extends StringFieldTransformations<any, any, any>,
 > extends FieldDefinition<TStringFieldValidation, TStringFieldTranforamtions> {
-  constructor(validations: TStringFieldValidation, transformations: TStringFieldTranforamtions) {
-    super(validations, transformations);
+  constructor(validations: TStringFieldValidation, transformations: TStringFieldTranforamtions, isAutoValidate: boolean = true) {
+    super(validations, transformations, isAutoValidate);
   }
 
   validate() {
     if (typeof this._validations.minLength === "number" && (!Number.isSafeInteger(this._validations.minLength) || this._validations.minLength < 0)) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.MIN_LENGTH, { field: this._validations.field }), {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.STRING_MIN_LENGTH, { field: this._validations.field }), {
         meta: { definition: this },
       });
     }
 
     if (typeof this._validations.maxLength === "number" && (!Number.isSafeInteger(this._validations.maxLength) || this._validations.maxLength < 0)) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.MAX_LENGTH, { field: this._validations.field }), { meta: { definition: this } });
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.STRING_MAX_LENGTH, { field: this._validations.field }), { meta: { definition: this } });
     }
 
     if (typeof this._validations.minLength === "number" && typeof this._validations.maxLength === "number" && this._validations.minLength > this._validations.maxLength) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.LENGTH_RANGE, { field: this._validations.field }), {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.STRING_LENGTH_RANGE, { field: this._validations.field }), {
         meta: { definition: this },
       });
     }
@@ -96,24 +86,65 @@ export class NumberFieldDefinition<
   TNumberFieldValidation extends NumberFieldValidations<any>,
   TNumberFieldTransformations extends NumberFieldTransformations<any>,
 > extends FieldDefinition<TNumberFieldValidation, TNumberFieldTransformations> {
-  constructor(validations: TNumberFieldValidation, transformations: TNumberFieldTransformations) {
-    super(validations, transformations);
+  constructor(validations: TNumberFieldValidation, transformations: TNumberFieldTransformations, isAutoValidate: boolean = true) {
+    super(validations, transformations, isAutoValidate);
   }
 
   validate() {
     if (typeof this._validations.minValue === "number" && !Number.isFinite(this._validations.minValue)) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.MIN_VALUE, { field: this._validations.field }), { meta: { definition: this } });
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.NUMBER_MIN_VALUE, { field: this._validations.field }), { meta: { definition: this } });
     }
 
     if (typeof this._validations.maxValue === "number" && !Number.isFinite(this._validations.maxValue)) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.MAX_VALUE, { field: this._validations.field }), { meta: { definition: this } });
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.NUMBER_MAX_VALUE, { field: this._validations.field }), { meta: { definition: this } });
     }
 
     if (typeof this._validations.minValue === "number" && typeof this._validations.maxValue === "number" && this._validations.minValue > this._validations.maxValue) {
-      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.MIN_MAX_VALUE_RANGE, { field: this._validations.field }), {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.NUMBER_MIN_MAX_VALUE_RANGE, { field: this._validations.field }), {
         meta: { definition: this },
       });
     }
+  }
+}
+
+export class ArrayFieldDefinition<
+  TArrayFieldValidation extends ArrayFieldValidations<any>,
+  TArrayFieldTransformations extends ArrayFieldTransformations,
+  TArrayElementsFieldDefinition extends TFieldDefinitionsUnion,
+> extends FieldDefinition<TArrayFieldValidation, TArrayFieldTransformations> {
+  private _elementsFieldDefinition: TArrayElementsFieldDefinition;
+
+  constructor(
+    validations: TArrayFieldValidation,
+    transformations: TArrayFieldTransformations,
+    elementsFieldDefinition: TArrayElementsFieldDefinition,
+    isAutoValidate: boolean = true,
+  ) {
+    super(validations, transformations, isAutoValidate);
+    this._elementsFieldDefinition = elementsFieldDefinition;
+  }
+
+  validate() {
+    if (typeof this._validations.length === "number" && (typeof this._validations.minLength === "number" || typeof this._validations.maxLength === "number")) {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.ARRAY_LENGTH_WITH_MIN_MAX, { field: this._validations.field }), {
+        meta: { definition: this },
+      });
+    } else if (typeof this._validations.minLength === "number" && this._validations.minLength < 0) {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.ARRAY_MIN_LENGTH, { field: this._validations.field }), {
+        meta: { definition: this },
+      });
+    } else if (typeof this._validations.maxLength === "number" && this._validations.maxLength < 0) {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.ARRAY_MAX_LENGTH, { field: this._validations.field }), {
+        meta: { definition: this },
+      });
+    } else if (typeof this._validations.minLength === "number" && typeof this._validations.maxLength === "number" && this._validations.minLength > this._validations.maxLength) {
+      throw new FieldDefinitionValidatorCustomError(formatStr(messages.INVALID_VALIDATIONS.ARRAY_LENGTH_RANGE, { field: this._validations.field }), {
+        meta: { definition: this },
+      });
+    }
+
+    // Validating elements of array field definition
+    this._elementsFieldDefinition.validate();
   }
 }
 

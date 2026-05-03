@@ -1,5 +1,5 @@
 // Third party imports
-import { HydratedDocument, Schema, model } from "mongoose";
+import { HydratedDocument, Schema, type Types, model } from "mongoose";
 import { z } from "zod";
 import { hash } from "bcryptjs";
 
@@ -11,12 +11,15 @@ import logger from "../utils/logger.js";
 
 const ENTITY_NAME = settings.ENTITY_NAMES.USER;
 
-interface UserI {
+export interface UserI {
+  id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
   passwordLastModifiedAt: Date;
   isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const userSchema = new Schema<UserI>(

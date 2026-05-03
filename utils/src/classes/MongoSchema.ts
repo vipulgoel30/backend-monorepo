@@ -2,7 +2,7 @@
 import type { SchemaTypeOptions } from "mongoose";
 
 // User imports
-import { FieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types.ts";
+import { FieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types/types.ts";
 import { FieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
 import { createStringFieldValidationErrorMsg } from "./FieldValidationErrorMsgs.ts";
 import { FieldValidations, StringFieldValidations } from "./FieldValidations.ts";

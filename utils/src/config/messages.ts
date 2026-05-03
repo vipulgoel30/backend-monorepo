@@ -11,15 +11,22 @@ export const utilsMessages = {
     MIN_VALUE: "The '{field}' must be at least {minValue}.",
     MAX_VALUE: "The '{field}' must not exceed {maxValue}.",
     INVALID_VALUE: "Invalid value provided for the field '{field}'.",
+    INVALID_ARRAY_LENGTH: "The '{field}' must contain exactly {length} items.",
+    ARRAY_MIN_LENGTH: "The '{field}' must contain at least {minLength} items.",
+    ARRAY_MAX_LENGTH: "The '{field}' must not contain more than {maxLength} items.",
   },
 
   INVALID_VALIDATIONS: {
-    MIN_VALUE: "Invalid minValue configured for field '{field}'. Expected a finite number.",
-    MAX_VALUE: "Invalid maxValue configured for field '{field}'. Expected a finite number.",
-    MIN_LENGTH: "Invalid minLength configured for field '{field}'. Expected a non-negative safe integer.",
-    MAX_LENGTH: "Invalid maxLength configured for field '{field}'. Expected a non-negative safe integer.",
-    LENGTH_RANGE: "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
-    MIN_MAX_VALUE_RANGE: "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
+    NUMBER_MIN_VALUE: "Invalid minValue configured for field '{field}'. Expected a finite number.",
+    NUMBER_MAX_VALUE: "Invalid maxValue configured for field '{field}'. Expected a finite number.",
+    NUMBER_MIN_MAX_VALUE_RANGE: "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
+    STRING_MIN_LENGTH: "Invalid minLength configured for field '{field}'. Expected a non-negative safe integer.",
+    STRING_MAX_LENGTH: "Invalid maxLength configured for field '{field}'. Expected a non-negative safe integer.",
+    STRING_LENGTH_RANGE: "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
+    ARRAY_LENGTH_WITH_MIN_MAX: "Invalid configuration for '{field}': 'length' cannot be used together with 'minLength' or 'maxLength'.",
+    ARRAY_MIN_LENGTH: "Invalid minLength configured for '{field}': 'minLength' must be a non-negative number.",
+    ARRAY_MAX_LENGTH: "Invalid maxLength configured for '{field}': 'maxLength' must be a non-negative number.",
+    ARRAY_LENGTH_RANGE: "Invalid length range configured for '{field}': 'minLength' cannot be greater than 'maxLength'.",
   },
 
   INVALID_TRANFORMATIONS: {
@@ -57,5 +64,25 @@ export const utilsMessages = {
 
   REDIS: {
     SCOPE: "Redis",
+    CREATE_REDIS_CONNECT_URL_ERROR: "Failed to create Redis connection URL.",
+    CREATE_REDIS_CLIENT_ERROR: "Failed to create Redis Client.",
+    CLIENT_NOT_FOUND: "Redis client not found.",
+    REDIS_COMMAND_ERROR: "Failed to execute redis command: {command}",
+    REDIS_COMMAND_RESPONSE: "Redis command response for command: {command}",
+    COMMANDS_NAME: {
+      HASH: {
+        HGET: "hget",
+      },
+      STRING: {
+        SET: "SET",
+        GET: "GET",
+        GETEX: "GETEX",
+      },
+      TIME: "TIME",
+    },
+  },
+  METHOD: {
+    LOG_IN: "Method /IN",
+    LOG_OUT: "Method /OUT",
   },
 } as const;

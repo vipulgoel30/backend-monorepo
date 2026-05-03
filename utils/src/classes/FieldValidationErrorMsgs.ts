@@ -1,5 +1,5 @@
 // User imports
-import { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types.ts";
+import type { FieldValidationErrorMsg, NumberFieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types/types.ts";
 import { FieldDefinition, NumberFieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
 import { FieldTransformations } from "./FieldTransformations.ts";
 import { FieldValidations } from "./FieldValidations.ts";

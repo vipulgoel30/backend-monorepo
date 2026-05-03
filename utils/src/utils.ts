@@ -6,7 +6,7 @@ import { CustomError } from "./errors/CustomError.ts";
 import { utilsMessages as messages } from "./config/messages.ts";
 import { NumberZodSchema, ZodHelpers } from "./classes/Zod.ts";
 import { NumberFieldDefinition } from "./classes/FieldDefinition.ts";
-import { Logger, Primitive } from "./types.ts";
+import { Logger, Primitive } from "./types/types.ts";
 import { utilTransformations, utilValidations } from "./exports.ts";
 
 export let logger: Logger | null = null;
@@ -44,10 +44,10 @@ export const formatStr = (message: string, placeholder: Record<string, Primitive
   });
 };
 
-export const getErrMessage = (err: any): string => {
-  return err instanceof Error ? err.message : String(err);
+export const getErrorMessage = (error: any): string => {
+  return error instanceof Error ? error?.message : String(error);
 };
 
-export const formatErrMessage = (defaultMessage: string, err: any): string => {
-  return formatStr(messages.ERROR_FORMAT, { defaultMessage, errorMsg: getErrMessage(err) });
+export const formatErrorMessage = (defaultMessage: string, error: any): string => {
+  return formatStr(messages.ERROR_FORMAT, { defaultMessage, errorMsg: getErrorMessage(error) });
 };

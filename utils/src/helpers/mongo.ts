@@ -4,7 +4,7 @@ import { connect, type ConnectOptions, type Mongoose } from "mongoose";
 
 // User imports
 import { type retryAsyncWrapper } from "./retryAsync.ts";
-import { mongoFieldDefinitions } from "../config/definitions.ts";
+import { mongoUriConfigurationFieldDefinitions } from "../config/definitions.ts";
 import { CustomError, type CustomErrorInfo } from "../errors/CustomError.ts";
 import { utilsSettings as settings } from "../config/settings.ts";
 import { utilsMessages as messages } from "../config/messages.ts";
@@ -26,11 +26,11 @@ export interface CreateMongoUriConfig {
 }
 
 const createMongoUriZodSchema = z.object({
-  hostname: new StringZodSchema(mongoFieldDefinitions.hostname).build(),
-  port: new NumberZodSchema(mongoFieldDefinitions.port).build(),
-  username: new StringZodSchema(mongoFieldDefinitions.username).build(),
-  password: new StringZodSchema(mongoFieldDefinitions.password).build(),
-  database: new StringZodSchema(mongoFieldDefinitions.database).build(),
+  hostname: new StringZodSchema(mongoUriConfigurationFieldDefinitions.hostname).build(),
+  port: new NumberZodSchema(mongoUriConfigurationFieldDefinitions.port).build(),
+  username: new StringZodSchema(mongoUriConfigurationFieldDefinitions.username).build(),
+  password: new StringZodSchema(mongoUriConfigurationFieldDefinitions.password).build(),
+  database: new StringZodSchema(mongoUriConfigurationFieldDefinitions.database).build(),
 });
 
 export const createMongoUri = (options: CreateMongoUriConfig) => {

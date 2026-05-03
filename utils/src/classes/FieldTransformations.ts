@@ -14,6 +14,8 @@ export interface TNumberFieldTransformationsConstructorOptions<TCoerce extends b
   isCoerce: TCoerce;
 }
 
+export interface TArrayFieldTranformationsConstructorOptions extends TFieldTransformationsConstructorOptions {}
+
 export abstract class FieldTransformations {
   constructor() {}
 
@@ -26,6 +28,10 @@ export abstract class FieldTransformations {
   }
 
   protected static getDefaultConstructorOptions(): TFieldTransformationsConstructorOptions {
+    return {};
+  }
+
+  protected getCurrentConstructorOptions(): TFieldTransformationsConstructorOptions {
     return {};
   }
 
@@ -65,8 +71,9 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
     };
   }
 
-  private getCurrentConstructorOptions(): TStringFieldTransformationsConstructorOptions<TTrim, TToLowerCase, TToUpperCase> {
+  protected getCurrentConstructorOptions(): TStringFieldTransformationsConstructorOptions<TTrim, TToLowerCase, TToUpperCase> {
     return {
+      ...super.getCurrentConstructorOptions(),
       isTrim: this._isTrim,
       isToLowerCase: this._isToLowerCase,
       isToUpperCase: this._isToUpperCase,
@@ -94,14 +101,10 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
   }
 
   clone() {
-    return new StringFieldTransformations({
-      isTrim: this._isTrim,
-      isToLowerCase: this._isToLowerCase,
-      isToUpperCase: this._isToUpperCase,
-    });
+    return new StringFieldTransformations(this.getCurrentConstructorOptions());
   }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
       isTrim: this._isTrim,
@@ -130,8 +133,9 @@ export class NumberFieldTransformations<TCoerce extends boolean> extends FieldTr
     };
   }
 
-  private getCurrentConstructorOptions(): TNumberFieldTransformationsConstructorOptions<TCoerce> {
+  protected getCurrentConstructorOptions(): TNumberFieldTransformationsConstructorOptions<TCoerce> {
     return {
+      ...super.getCurrentConstructorOptions(),
       isCoerce: this._isCoerce,
     };
   }
@@ -144,12 +148,10 @@ export class NumberFieldTransformations<TCoerce extends boolean> extends FieldTr
   }
 
   clone() {
-    return new NumberFieldTransformations({
-      isCoerce: this._isCoerce,
-    });
+    return new NumberFieldTransformations(this.getCurrentConstructorOptions());
   }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
       isCoerce: this._isCoerce,
@@ -157,4 +159,28 @@ export class NumberFieldTransformations<TCoerce extends boolean> extends FieldTr
   }
 }
 
-export type TFieldTransformationsUnion = StringFieldTransformations<any, any, any> | NumberFieldTransformations<any>;
+export class ArrayFieldTransformations extends FieldTransformations {
+  constructor(options: TArrayFieldTranformationsConstructorOptions) {
+    super();
+  }
+
+  static getDefaultConstructorOptions(): TArrayFieldTranformationsConstructorOptions {
+    return {};
+  }
+
+  protected getCurrentConstructorOptions(): TArrayFieldTranformationsConstructorOptions {
+    return {};
+  }
+
+  clone() {
+    return new ArrayFieldTransformations(this.getCurrentConstructorOptions());
+  }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+    };
+  }
+}
+
+export type TFieldTransformationsUnion = StringFieldTransformations<any, any, any> | NumberFieldTransformations<any> | ArrayFieldTransformations;
