@@ -1,22 +1,12 @@
 // Third party imports
-import { Schema, type SchemaTypeOptions } from "mongoose";
+import { type SchemaTypeOptions } from "mongoose";
 
 // User imports
 import {
-  FieldDefinition,
-  StringFieldDefinition,
   TGFieldDefinition,
   TGNumberFieldDefintion,
   TGStringFieldDefinition,
 } from "./FieldDefinition.ts";
-import {
-  FieldValidations,
-  StringFieldValidations,
-} from "./FieldValidations.ts";
-import {
-  FieldTransformations,
-  StringFieldTransformations,
-} from "./FieldTransformations.ts";
 import {
   TFieldValidationErrors,
   TNumberFieldValidationErrors,
@@ -27,7 +17,6 @@ import {
   NumberFieldValidationErrors,
   StringFieldValidationErrors,
 } from "./FieldValidationErrorMsgs.ts";
-import { StringZodSchema } from "./Zod.ts";
 
 export interface TMongoCustomValidation<TPSchemaType> {
   validator: (value: TPSchemaType) => boolean;
