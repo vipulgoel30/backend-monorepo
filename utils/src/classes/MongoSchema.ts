@@ -1,101 +1,327 @@
 // Third party imports
-import type { SchemaTypeOptions } from "mongoose";
+import { Schema, type SchemaTypeOptions } from "mongoose";
 
 // User imports
-import { FieldValidationErrorMsg, StringFieldValidationErrorMsg } from "../types/types.ts";
-import { FieldDefinition, StringFieldDefinition } from "./FieldDefinition.ts";
-import { createStringFieldValidationErrorMsg } from "./FieldValidationErrorMsgs.ts";
-import { FieldValidations, StringFieldValidations } from "./FieldValidations.ts";
-import { FieldTransformations, StringFieldTransformations } from "./FieldTransformations.ts";
+import {
+  FieldDefinition,
+  StringFieldDefinition,
+  TGFieldDefinition,
+  TGNumberFieldDefintion,
+  TGStringFieldDefinition,
+} from "./FieldDefinition.ts";
+import {
+  FieldValidations,
+  StringFieldValidations,
+} from "./FieldValidations.ts";
+import {
+  FieldTransformations,
+  StringFieldTransformations,
+} from "./FieldTransformations.ts";
+import {
+  TFieldValidationErrors,
+  TNumberFieldValidationErrors,
+  TStringFieldValidationErrors,
+} from "../types/types.ts";
+import BaseClass from "./Base.ts";
+import {
+  NumberFieldValidationErrors,
+  StringFieldValidationErrors,
+} from "./FieldValidationErrorMsgs.ts";
+import { StringZodSchema } from "./Zod.ts";
+
+export interface TMongoCustomValidation<TPSchemaType> {
+  validator: (value: TPSchemaType) => boolean;
+  message: string;
+}
+
+interface TMongoSchemaConstructorOptions<
+  TPFieldDefinitions extends TGFieldDefinition,
+  TPFieldValidationErrors extends TFieldValidationErrors,
+  TPSchemaType,
+> {
+  fieldDefinition: TPFieldDefinitions;
+  entity: string;
+  validationErrors?: TPFieldValidationErrors;
+  customValidations?: TMongoCustomValidation<TPSchemaType>[];
+}
+
+export interface TStringMongoSchemaConstructorOptions<
+  TPFieldDefinitions extends TGStringFieldDefinition,
+> extends TMongoSchemaConstructorOptions<
+  TPFieldDefinitions,
+  TStringFieldValidationErrors,
+  string
+> {}
+
+export interface TNumberMongoSchemaConstructorOptions<
+  TPFieldDefinitions extends TGNumberFieldDefintion,
+> extends TMongoSchemaConstructorOptions<
+  TPFieldDefinitions,
+  TNumberFieldValidationErrors,
+  number
+> {}
 
 abstract class MongoSchema<
-  TFieldDefinition extends FieldDefinition<FieldValidations<any>, FieldTransformations>,
-  TFieldValidationErrorMsgs extends FieldValidationErrorMsg,
-  SchemaType,
-> {
-  protected _fieldDefinition!: TFieldDefinition;
-  protected _validationMessages?: TFieldValidationErrorMsgs;
-  protected _entity!: string;
-  protected _customValidations: { validator: (value: SchemaType) => boolean; message: string }[];
+  TPFieldDefinitions extends TGFieldDefinition,
+  TPFieldValidationErrors extends TFieldValidationErrors,
+  TPSchemaType,
+> extends BaseClass {
+  protected readonly _fieldDefinition: TPFieldDefinitions;
+  protected readonly _entity: string;
+  protected readonly _validationErrors?: TPFieldValidationErrors;
+  protected readonly _customValidations: TMongoCustomValidation<TPSchemaType>[];
 
-  constructor(fieldDefinition: TFieldDefinition, entity: string, validationMessages?: TFieldValidationErrorMsgs) {
-    this.fieldDefinition = fieldDefinition;
-    this.validationMessages = validationMessages;
-    this.entity = entity;
-    this._customValidations = [];
+  constructor(
+    options: TMongoSchemaConstructorOptions<
+      TPFieldDefinitions,
+      TPFieldValidationErrors,
+      TPSchemaType
+    >,
+  ) {
+    super();
+    this._fieldDefinition = options.fieldDefinition;
+    this._entity = options.entity;
+    if (options.validationErrors)
+      this._validationErrors = { ...options.validationErrors };
+    this._customValidations = options.customValidations
+      ? this._cloneCustomValidations(options.customValidations)
+      : [];
   }
 
-  get fieldDefinition(): Readonly<TFieldDefinition> {
+  get fieldDefinition(): TPFieldDefinitions {
     return this._fieldDefinition;
-  }
-
-  set fieldDefinition(fieldDefinition: TFieldDefinition) {
-    if (fieldDefinition.isAutoValidate !== true) fieldDefinition.validate();
-    this._fieldDefinition = fieldDefinition;
-  }
-
-  setFieldDefinition(fieldDefinition: TFieldDefinition) {
-    this.fieldDefinition = fieldDefinition;
-    return this;
-  }
-
-  get validationMessages(): Readonly<TFieldValidationErrorMsgs | undefined> {
-    return this._validationMessages;
-  }
-
-  set validationMessages(validationMessages: TFieldValidationErrorMsgs | undefined) {
-    this._validationMessages = validationMessages ? { ...validationMessages } : undefined;
-  }
-
-  setValidationMessages(validationMessages: TFieldValidationErrorMsgs | undefined) {
-    this.validationMessages = validationMessages;
-    return this;
-  }
-
-  addCustomValidations(validationFn: (value: SchemaType) => boolean, message: string) {
-    this._customValidations.push({
-      validator: validationFn,
-      message,
-    });
-
-    return this;
   }
 
   get entity(): string {
     return this._entity;
   }
 
-  set entity(entity: string) {
-    this._entity = entity;
+  get validationErrors(): Readonly<TPFieldValidationErrors | undefined> {
+    return this._validationErrors;
   }
 
-  setEntity(entity: string) {
-    this.entity = entity;
-    return this;
+  get customValidations(): Readonly<TMongoCustomValidation<TPSchemaType>[]> {
+    return this._customValidations;
   }
+
+  toJSON() {
+    return {
+      fieldDefinition: this._fieldDefinition,
+      entity: this._entity,
+      validationErrors: this._validationErrors,
+      customValidations: this._customValidations,
+    };
+  }
+
+  getCurrentConstructorOptions(): TMongoSchemaConstructorOptions<
+    TPFieldDefinitions,
+    TPFieldValidationErrors,
+    TPSchemaType
+  > {
+    return {
+      fieldDefinition: this._fieldDefinition,
+      entity: this._entity,
+      validationErrors: this._validationErrors,
+      customValidations: this._customValidations,
+    };
+  }
+
+  protected _cloneCustomValidations(
+    customValidations: TMongoCustomValidation<TPSchemaType>[],
+  ): TMongoCustomValidation<TPSchemaType>[] {
+    return customValidations.map((customValidation) => ({
+      ...customValidation,
+    }));
+  }
+
+  abstract setFieldDefinition(...args: any): any;
+  abstract setEntity(...args: any): any;
+  abstract addCustomValidations(...args: any): any;
+  abstract setCustomValidations(...args: any): any;
+  abstract setValidationErrors(...args: any): any;
 }
 
 export class StringMongoSchema<
-  TFieldDefinition extends StringFieldDefinition<StringFieldValidations<any, any, any>, StringFieldTransformations<any, any, any>>,
-> extends MongoSchema<TFieldDefinition, StringFieldValidationErrorMsg, string> {
-  constructor(fieldDefinition: TFieldDefinition, entity: string, validationMessages?: StringFieldValidationErrorMsg) {
-    super(fieldDefinition, entity, validationMessages);
+  TPStringFieldDefinitions extends TGStringFieldDefinition,
+> extends MongoSchema<
+  TPStringFieldDefinitions,
+  TStringFieldValidationErrors,
+  string
+> {
+  constructor(
+    options: TStringMongoSchemaConstructorOptions<TPStringFieldDefinitions>,
+  ) {
+    super(options);
   }
 
-  schema(): SchemaTypeOptions<string> {
-    const validationMessages: StringFieldValidationErrorMsg = createStringFieldValidationErrorMsg(this._fieldDefinition, this._validationMessages);
-    const validations: Readonly<TFieldDefinition["validations"]> = this._fieldDefinition.validations;
-    const transformations: Readonly<TFieldDefinition["transformations"]> = this._fieldDefinition.transformations;
+  getCurrentConstructorOptions(): TStringMongoSchemaConstructorOptions<TPStringFieldDefinitions> {
+    return {
+      ...super.getCurrentConstructorOptions(),
+    };
+  }
+
+  setFieldDefinition<
+    TPStringFieldDefinitionCur extends TGStringFieldDefinition,
+  >(
+    fieldDefinition: TPStringFieldDefinitionCur,
+  ): StringMongoSchema<TPStringFieldDefinitionCur> {
+    return new StringMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      fieldDefinition,
+    });
+  }
+  setEntity(entity: string): StringMongoSchema<TPStringFieldDefinitions> {
+    return new StringMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      entity,
+    });
+  }
+
+  addCustomValidations(
+    customValidation: TMongoCustomValidation<string>,
+  ): StringMongoSchema<TPStringFieldDefinitions> {
+    return new StringMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      customValidations: [...this.customValidations, { ...customValidation }],
+    });
+  }
+
+  setCustomValidations(
+    customValidations: TMongoCustomValidation<string>[],
+  ): StringMongoSchema<TPStringFieldDefinitions> {
+    return new StringMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      customValidations: this._cloneCustomValidations(customValidations),
+    });
+  }
+  setValidationErrors(
+    validationErrors: TStringFieldValidationErrors,
+  ): StringMongoSchema<TPStringFieldDefinitions> {
+    return new StringMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      validationErrors,
+    });
+  }
+  clone() {
+    return new StringMongoSchema(this.getCurrentConstructorOptions());
+  }
+
+  build(): SchemaTypeOptions<string> {
+    const validationErrors: TStringFieldValidationErrors =
+      new StringFieldValidationErrors({
+        fieldDefinition: this._fieldDefinition,
+        defaultErrors: this._validationErrors,
+      }).build();
+    const validations: TPStringFieldDefinitions["validations"] =
+      this._fieldDefinition.validations;
+    const transformations: TPStringFieldDefinitions["transformations"] =
+      this._fieldDefinition.transformations;
 
     const schema: SchemaTypeOptions<string> = { type: "string" };
     if (transformations?.isTrim === true) schema.trim = true;
 
-    if (typeof validations.minLength === "number") schema.minLength = [validations.minLength, validationMessages.minLength!];
-    if (typeof validations.maxLength === "number") schema.maxLength = [validations.maxLength, validationMessages.maxLength!];
-    if (this._customValidations.length > 0) {
+    if (typeof validations.minLength === "number")
+      schema.minLength = [validations.minLength, validationErrors.minLength!];
+    if (typeof validations.maxLength === "number")
+      schema.maxLength = [validations.maxLength, validationErrors.maxLength!];
+    if (validations.isRequired === true)
+      schema.required = [true, validationErrors.required!];
+    if (this._customValidations.length > 0)
       schema.validate = this._customValidations;
-    }
-    if (validations?.isRequired === true) schema.required = [true, validationMessages.required!];
+
+    return schema;
+  }
+}
+
+export class NumberMongoSchema<
+  TPNumberFieldDefinitions extends TGNumberFieldDefintion,
+> extends MongoSchema<
+  TPNumberFieldDefinitions,
+  TNumberFieldValidationErrors,
+  number
+> {
+  constructor(
+    options: TNumberMongoSchemaConstructorOptions<TPNumberFieldDefinitions>,
+  ) {
+    super(options);
+  }
+
+  getCurrentConstructorOptions(): TNumberMongoSchemaConstructorOptions<TPNumberFieldDefinitions> {
+    return {
+      ...super.getCurrentConstructorOptions(),
+    };
+  }
+
+  setFieldDefinition<TPNumberFieldDefinitionCur extends TGNumberFieldDefintion>(
+    fieldDefinition: TPNumberFieldDefinitionCur,
+  ): NumberMongoSchema<TPNumberFieldDefinitionCur> {
+    return new NumberMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      fieldDefinition,
+    });
+  }
+
+  setEntity(entity: string): NumberMongoSchema<TPNumberFieldDefinitions> {
+    return new NumberMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      entity,
+    });
+  }
+
+  addCustomValidations(
+    customValidation: TMongoCustomValidation<number>,
+  ): NumberMongoSchema<TPNumberFieldDefinitions> {
+    return new NumberMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      customValidations: [...this.customValidations, { ...customValidation }],
+    });
+  }
+
+  setCustomValidations(
+    customValidations: TMongoCustomValidation<number>[],
+  ): NumberMongoSchema<TPNumberFieldDefinitions> {
+    return new NumberMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      customValidations: this._cloneCustomValidations(customValidations),
+    });
+  }
+
+  setValidationErrors(
+    validationErrors: TNumberFieldValidationErrors,
+  ): NumberMongoSchema<TPNumberFieldDefinitions> {
+    return new NumberMongoSchema({
+      ...this.getCurrentConstructorOptions(),
+      validationErrors,
+    });
+  }
+
+  clone(): NumberMongoSchema<TPNumberFieldDefinitions> {
+    return new NumberMongoSchema(this.getCurrentConstructorOptions());
+  }
+
+  build(): SchemaTypeOptions<number> {
+    const validationErrors: TNumberFieldValidationErrors =
+      new NumberFieldValidationErrors({
+        fieldDefinition: this._fieldDefinition,
+        defaultErrors: this._validationErrors,
+      }).build();
+
+    const validations: TPNumberFieldDefinitions["validations"] =
+      this._fieldDefinition.validations;
+    const transformations: TPNumberFieldDefinitions["transformations"] =
+      this._fieldDefinition.transformations;
+
+    const schema: SchemaTypeOptions<number> = { type: "number" };
+    if (typeof validations.minValue === "number")
+      schema.min = [validations.minValue, validationErrors.minValue!];
+    if (typeof validations.maxValue === "number")
+      schema.max = [validations.maxValue, validationErrors.maxValue!];
+    if (typeof validations.isRequired === "boolean")
+      schema.required = [validations.isRequired, validationErrors.required!];
+    if (typeof transformations.isCoerce === "boolean")
+      schema.cast = transformations.isCoerce;
+    if (this._customValidations.length > 0)
+      schema.validate = this._customValidations;
 
     return schema;
   }

@@ -1,33 +1,40 @@
-export interface TFieldTransformationsConstructorOptions {}
+// User imports
+import { OnlyWithTypeParameter } from "../types/types.ts";
+import BaseClass from "./Base.ts";
+
+interface TFieldTransformationsConstructorOptions {}
 
 export interface TStringFieldTransformationsConstructorOptions<
-  TTrim extends boolean,
-  TToLowerCase extends boolean,
-  TToUpperCase extends boolean,
+  TPTrim extends boolean,
+  TPIsToLowerCase extends boolean,
+  TPIsToUpperCase extends boolean,
 > extends TFieldTransformationsConstructorOptions {
-  isTrim: TTrim;
-  isToLowerCase: TToLowerCase;
-  isToUpperCase: TToUpperCase;
+  isTrim: TPTrim;
+  isToLowerCase: TPIsToLowerCase;
+  isToUpperCase: TPIsToUpperCase;
 }
 
-export interface TNumberFieldTransformationsConstructorOptions<TCoerce extends boolean> extends TFieldTransformationsConstructorOptions {
-  isCoerce: TCoerce;
+export interface TNumberFieldTransformationsConstructorOptions<
+  TPIsCoerce extends boolean,
+> extends TFieldTransformationsConstructorOptions {
+  isCoerce: TPIsCoerce;
 }
 
 export interface TArrayFieldTranformationsConstructorOptions extends TFieldTransformationsConstructorOptions {}
 
-export abstract class FieldTransformations {
-  constructor() {}
+export abstract class FieldTransformations extends BaseClass {
+  constructor() {
+    super();
+  }
 
-  toJSON() {
+  toJSON(): Record<string, any> {
     return {};
   }
 
-  toString() {
-    return JSON.stringify(this.toJSON());
-  }
-
-  protected static getDefaultConstructorOptions(): TFieldTransformationsConstructorOptions {
+  protected static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TFieldTransformationsConstructorOptions,
+    boolean
+  > {
     return {};
   }
 
@@ -38,16 +45,20 @@ export abstract class FieldTransformations {
   abstract clone(): any;
 }
 
-export class StringFieldTransformations<TTrim extends boolean, TToLowerCase extends boolean, TToUpperCase extends boolean> extends FieldTransformations {
-  private _isTrim: TTrim;
-  private _isToLowerCase: TToLowerCase;
-  private _isToUpperCase: TToUpperCase;
+export class StringFieldTransformations<
+  TPTrim extends boolean,
+  TPIsToLowerCase extends boolean,
+  TPIsToUpperCase extends boolean,
+> extends FieldTransformations {
+  private readonly _isTrim: TPTrim;
+  private readonly _isToLowerCase: TPIsToLowerCase;
+  private readonly _isToUpperCase: TPIsToUpperCase;
 
-  get isTrim() {
+  get isTrim(): TPTrim {
     return this._isTrim;
   }
 
-  get isToLowerCase() {
+  get isToLowerCase(): TPIsToLowerCase {
     return this._isToLowerCase;
   }
 
@@ -55,14 +66,23 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
     return this._isToUpperCase;
   }
 
-  constructor(options: TStringFieldTransformationsConstructorOptions<TTrim, TToLowerCase, TToUpperCase>) {
+  constructor(
+    options: TStringFieldTransformationsConstructorOptions<
+      TPTrim,
+      TPIsToLowerCase,
+      TPIsToUpperCase
+    >,
+  ) {
     super();
     this._isTrim = options.isTrim;
     this._isToLowerCase = options.isToLowerCase;
     this._isToUpperCase = options.isToUpperCase;
   }
 
-  static getDefaultConstructorOptions(): TStringFieldTransformationsConstructorOptions<false, false, false> {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TStringFieldTransformationsConstructorOptions<false, false, false>,
+    boolean
+  > {
     return {
       ...super.getDefaultConstructorOptions(),
       isTrim: false,
@@ -71,7 +91,11 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
     };
   }
 
-  protected getCurrentConstructorOptions(): TStringFieldTransformationsConstructorOptions<TTrim, TToLowerCase, TToUpperCase> {
+  protected getCurrentConstructorOptions(): TStringFieldTransformationsConstructorOptions<
+    TPTrim,
+    TPIsToLowerCase,
+    TPIsToUpperCase
+  > {
     return {
       ...super.getCurrentConstructorOptions(),
       isTrim: this._isTrim,
@@ -80,20 +104,26 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
     };
   }
 
-  setIsTrim<TTrimCur extends boolean>(isTrim: TTrimCur): StringFieldTransformations<TTrimCur, TToLowerCase, TToUpperCase> {
+  setIsTrim<TPTrimCur extends boolean>(
+    isTrim: TPTrimCur,
+  ): StringFieldTransformations<TPTrimCur, TPIsToLowerCase, TPIsToUpperCase> {
     return new StringFieldTransformations({
       ...this.getCurrentConstructorOptions(),
       isTrim,
     });
   }
 
-  setIsToLowerCase<TToLowerCaseCur extends boolean>(isToLowerCase: TToLowerCaseCur): StringFieldTransformations<TTrim, TToLowerCaseCur, TToUpperCase> {
+  setIsToLowerCase<TPToLowerCaseCur extends boolean>(
+    isToLowerCase: TPToLowerCaseCur,
+  ): StringFieldTransformations<TPTrim, TPToLowerCaseCur, TPIsToUpperCase> {
     return new StringFieldTransformations({
       ...this.getCurrentConstructorOptions(),
       isToLowerCase,
     });
   }
-  setIsToUpperCase<TToUpperCaseCur extends boolean>(isToUpperCase: TToUpperCaseCur): StringFieldTransformations<TTrim, TToLowerCase, TToUpperCaseCur> {
+  setIsToUpperCase<TPToUpperCaseCur extends boolean>(
+    isToUpperCase: TPToUpperCaseCur,
+  ): StringFieldTransformations<TPTrim, TPIsToLowerCase, TPToUpperCaseCur> {
     return new StringFieldTransformations({
       ...this.getCurrentConstructorOptions(),
       isToUpperCase,
@@ -114,33 +144,42 @@ export class StringFieldTransformations<TTrim extends boolean, TToLowerCase exte
   }
 }
 
-export class NumberFieldTransformations<TCoerce extends boolean> extends FieldTransformations {
-  private _isCoerce: TCoerce;
+export class NumberFieldTransformations<
+  TPIsCoerce extends boolean,
+> extends FieldTransformations {
+  private readonly _isCoerce: TPIsCoerce;
 
-  get isCoerce() {
+  get isCoerce(): TPIsCoerce {
     return this._isCoerce;
   }
 
-  constructor(options: TNumberFieldTransformationsConstructorOptions<TCoerce>) {
+  constructor(
+    options: TNumberFieldTransformationsConstructorOptions<TPIsCoerce>,
+  ) {
     super();
     this._isCoerce = options.isCoerce;
   }
 
-  static getDefaultConstructorOptions(): TNumberFieldTransformationsConstructorOptions<false> {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TNumberFieldTransformationsConstructorOptions<false>,
+    boolean
+  > {
     return {
       ...super.getDefaultConstructorOptions(),
       isCoerce: false,
     };
   }
 
-  protected getCurrentConstructorOptions(): TNumberFieldTransformationsConstructorOptions<TCoerce> {
+  protected getCurrentConstructorOptions(): TNumberFieldTransformationsConstructorOptions<TPIsCoerce> {
     return {
       ...super.getCurrentConstructorOptions(),
       isCoerce: this._isCoerce,
     };
   }
 
-  setIsCoerce<TCoerceCur extends boolean>(isCoerce: TCoerceCur): NumberFieldTransformations<TCoerceCur> {
+  setIsCoerce<TCoerceCur extends boolean>(
+    isCoerce: TCoerceCur,
+  ): NumberFieldTransformations<TCoerceCur> {
     return new NumberFieldTransformations({
       ...this.getCurrentConstructorOptions(),
       isCoerce,
@@ -164,7 +203,10 @@ export class ArrayFieldTransformations extends FieldTransformations {
     super();
   }
 
-  static getDefaultConstructorOptions(): TArrayFieldTranformationsConstructorOptions {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TArrayFieldTranformationsConstructorOptions,
+    boolean
+  > {
     return {};
   }
 
@@ -183,4 +225,16 @@ export class ArrayFieldTransformations extends FieldTransformations {
   }
 }
 
-export type TFieldTransformationsUnion = StringFieldTransformations<any, any, any> | NumberFieldTransformations<any> | ArrayFieldTransformations;
+export type TGFieldTransformations = FieldTransformations;
+export type TGStringFieldTransformations = StringFieldTransformations<
+  any,
+  any,
+  any
+>;
+export type TGNumberFieldTransformations = NumberFieldTransformations<any>;
+export type TGArrayFieldTransformations = ArrayFieldTransformations;
+
+export type TFieldTransformationsUnion =
+  | TGStringFieldTransformations
+  | TGNumberFieldTransformations
+  | TGArrayFieldTransformations;

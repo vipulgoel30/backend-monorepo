@@ -1,63 +1,79 @@
 // User imports
-import { FieldTypes } from "../types/types.ts";
+import { FieldTypes, OnlyWithTypeParameter } from "../types/types.ts";
+import BaseClass from "./Base.ts";
 
-export interface TFieldValidationConstructorOptions<TRequired extends boolean> {
-  isRequired: TRequired;
+interface TFieldValidationConstructorOptions<TPIsRequired extends boolean> {
+  field: string;
+  isRequired: TPIsRequired;
 }
 
 export interface TStringFieldValidationConstructorOptions<
-  TRequired extends boolean,
-  TNoSpaces extends boolean,
-  TEmail extends boolean,
-> extends TFieldValidationConstructorOptions<TRequired> {
+  TPIsRequired extends boolean,
+  TPIsNoSpaces extends boolean,
+  TPIsEmail extends boolean,
+> extends TFieldValidationConstructorOptions<TPIsRequired> {
   minLength?: number;
   maxLength?: number;
-  isNoSpaces: TNoSpaces;
-  isEmail: TEmail;
+  isNoSpaces: TPIsNoSpaces;
+  isEmail: TPIsEmail;
 }
 
-export interface TNumberFieldValidationConstructorOptions<TRequired extends boolean> extends TFieldValidationConstructorOptions<TRequired> {
+export interface TNumberFieldValidationConstructorOptions<
+  TPIsRequired extends boolean,
+> extends TFieldValidationConstructorOptions<TPIsRequired> {
   minValue?: number;
   maxValue?: number;
 }
 
-export interface TArrayFieldValidationConstructorOptions<TRequired extends boolean> extends TFieldValidationConstructorOptions<TRequired> {
+export interface TArrayFieldValidationConstructorOptions<
+  TPIsRequired extends boolean,
+> extends TFieldValidationConstructorOptions<TPIsRequired> {
   length?: number;
   minLength?: number;
   maxLength?: number;
 }
 
-export abstract class FieldValidations<TRequired extends boolean> {
-  protected _field: string;
+export abstract class FieldValidations<
+  TPIsRequired extends boolean,
+> extends BaseClass {
+  protected readonly _field: string;
   protected readonly _type: FieldTypes;
-  protected _isRequired: TRequired;
+  protected readonly _isRequired: TPIsRequired;
 
   get field(): string {
     return this._field;
   }
 
-  get type(): FieldTypes {
-    return this._type;
+  get type(): string {
+    return this._type.toString();
   }
 
-  get isRequired(): TRequired {
+  get isRequired(): TPIsRequired {
     return this._isRequired;
   }
 
-  constructor(field: string, type: FieldTypes, options: TFieldValidationConstructorOptions<TRequired>) {
-    this._field = field;
-    this._type = type;
+  constructor(
+    fieldType: FieldTypes,
+    options: TFieldValidationConstructorOptions<TPIsRequired>,
+  ) {
+    super();
+    this._type = fieldType;
+    this._field = options.field;
     this._isRequired = options.isRequired;
   }
 
-  protected static getDefaultConstructorOptions(): TFieldValidationConstructorOptions<false> {
+  protected static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TFieldValidationConstructorOptions<false>,
+    boolean
+  > {
     return {
       isRequired: false,
     };
   }
 
-  protected getCurrentConstructorOptions(): TFieldValidationConstructorOptions<TRequired> {
+  protected getCurrentConstructorOptions(): TFieldValidationConstructorOptions<TPIsRequired> {
     return {
+      field: this._field,
       isRequired: this._isRequired,
     };
   }
@@ -70,20 +86,21 @@ export abstract class FieldValidations<TRequired extends boolean> {
     };
   }
 
-  toString() {
-    return JSON.stringify(this.toJSON());
-  }
-
   abstract setField(field: string): any;
-  abstract setIsRequired<TRequired extends boolean>(iseRquired: TRequired): any;
-  abstract clone(): any;
+  abstract setIsRequired<TPIsRequired extends boolean>(
+    iseRquired: TPIsRequired,
+  ): any;
 }
 
-export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends boolean, TEmail extends boolean> extends FieldValidations<TRequired> {
-  private _minLength?: number;
-  private _maxLength?: number;
-  private _isNoSpaces: TNoSpaces;
-  private _isEmail: TEmail;
+export class StringFieldValidations<
+  TPIsRequired extends boolean,
+  TPIsNoSpaces extends boolean,
+  TPIsEmail extends boolean,
+> extends FieldValidations<TPIsRequired> {
+  private readonly _minLength?: number;
+  private readonly _maxLength?: number;
+  private readonly _isNoSpaces: TPIsNoSpaces;
+  private readonly _isEmail: TPIsEmail;
 
   get minLength(): number | undefined {
     return this._minLength;
@@ -93,33 +110,48 @@ export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends
     return this._maxLength;
   }
 
-  get isNoSpaces(): TNoSpaces {
+  get isNoSpaces(): TPIsNoSpaces {
     return this._isNoSpaces;
   }
 
-  get isEmail(): TEmail {
+  get isEmail(): TPIsEmail {
     return this._isEmail;
   }
 
-  constructor(field: string, options: TStringFieldValidationConstructorOptions<TRequired, TNoSpaces, TEmail>) {
-    super(field, FieldTypes.string, { isRequired: options.isRequired });
+  constructor(
+    options: TStringFieldValidationConstructorOptions<
+      TPIsRequired,
+      TPIsNoSpaces,
+      TPIsEmail
+    >,
+  ) {
+    super(FieldTypes.string, {
+      field: options.field,
+      isRequired: options.isRequired,
+    });
     this._minLength = options.minLength;
     this._maxLength = options.maxLength;
     this._isNoSpaces = options.isNoSpaces;
     this._isEmail = options.isEmail;
   }
 
-  static getDefaultConstructorOptions(): TStringFieldValidationConstructorOptions<false, false, false> {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TStringFieldValidationConstructorOptions<false, false, false>,
+    boolean
+  > {
     return {
       ...super.getDefaultConstructorOptions(),
-      minLength: undefined,
-      maxLength: undefined,
       isEmail: false,
       isNoSpaces: false,
+      isRequired: false,
     };
   }
 
-  protected getCurrentConstructorOptions(): TStringFieldValidationConstructorOptions<TRequired, TNoSpaces, TEmail> {
+  protected getCurrentConstructorOptions(): TStringFieldValidationConstructorOptions<
+    TPIsRequired,
+    TPIsNoSpaces,
+    TPIsEmail
+  > {
     return {
       ...super.getCurrentConstructorOptions(),
       minLength: this._minLength,
@@ -129,41 +161,62 @@ export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends
     };
   }
 
-  setField(field: string): StringFieldValidations<TRequired, TNoSpaces, TEmail> {
-    return new StringFieldValidations(field, { ...this.getCurrentConstructorOptions() });
+  setField(
+    field: string,
+  ): StringFieldValidations<TPIsRequired, TPIsNoSpaces, TPIsEmail> {
+    return new StringFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      field,
+    });
   }
 
-  setIsRequired<TRequiredCur extends boolean>(isRequired: TRequiredCur): StringFieldValidations<TRequiredCur, TNoSpaces, TEmail> {
-    return new StringFieldValidations(this._field, {
+  setIsRequired<TPIsRequiredCur extends boolean>(
+    isRequired: TPIsRequiredCur,
+  ): StringFieldValidations<TPIsRequiredCur, TPIsNoSpaces, TPIsEmail> {
+    return new StringFieldValidations({
       ...this.getCurrentConstructorOptions(),
       isRequired: isRequired,
     });
   }
 
-  setMinLength(minLength: number | undefined): StringFieldValidations<TRequired, TNoSpaces, TEmail> {
-    return new StringFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), minLength });
+  setMinLength(
+    minLength: number | undefined,
+  ): StringFieldValidations<TPIsRequired, TPIsNoSpaces, TPIsEmail> {
+    return new StringFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      minLength,
+    });
   }
 
-  setMaxLength(maxLength: number | undefined): StringFieldValidations<TRequired, TNoSpaces, TEmail> {
-    return new StringFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), maxLength });
+  setMaxLength(
+    maxLength: number | undefined,
+  ): StringFieldValidations<TPIsRequired, TPIsNoSpaces, TPIsEmail> {
+    return new StringFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      maxLength,
+    });
   }
 
-  setIsNoSpaces<TNoSpacesCur extends boolean>(isNoSpaces: TNoSpacesCur): StringFieldValidations<TRequired, TNoSpacesCur, TEmail> {
-    return new StringFieldValidations(this._field, {
+  setIsNoSpaces<TPIsNoSpacesCur extends boolean>(
+    isNoSpaces: TPIsNoSpacesCur,
+  ): StringFieldValidations<TPIsRequired, TPIsNoSpacesCur, TPIsEmail> {
+    return new StringFieldValidations({
       ...this.getCurrentConstructorOptions(),
       isNoSpaces: isNoSpaces,
     });
   }
 
-  setIsEmail<TEmailCur extends boolean>(isEmail: TEmailCur): StringFieldValidations<TRequired, TNoSpaces, TEmailCur> {
-    return new StringFieldValidations(this._field, {
+  setIsEmail<TPIsEmailCur extends boolean>(
+    isEmail: TPIsEmailCur,
+  ): StringFieldValidations<TPIsRequired, TPIsNoSpaces, TPIsEmailCur> {
+    return new StringFieldValidations({
       ...this.getCurrentConstructorOptions(),
       isEmail: isEmail,
     });
   }
 
-  clone(): StringFieldValidations<TRequired, TNoSpaces, TEmail> {
-    return new StringFieldValidations(this._field, this.getCurrentConstructorOptions());
+  clone(): StringFieldValidations<TPIsRequired, TPIsNoSpaces, TPIsEmail> {
+    return new StringFieldValidations(this.getCurrentConstructorOptions());
   }
 
   toJSON(): Record<string, any> {
@@ -177,9 +230,11 @@ export class StringFieldValidations<TRequired extends boolean, TNoSpaces extends
   }
 }
 
-export class NumberFieldValidations<TRequired extends boolean> extends FieldValidations<TRequired> {
-  private _minValue?: number;
-  private _maxValue?: number;
+export class NumberFieldValidations<
+  TPIsRequired extends boolean,
+> extends FieldValidations<TPIsRequired> {
+  private readonly _minValue?: number;
+  private readonly _maxValue?: number;
 
   get minValue(): number | undefined {
     return this._minValue;
@@ -189,21 +244,25 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
     return this._maxValue;
   }
 
-  constructor(field: string, options: TNumberFieldValidationConstructorOptions<TRequired>) {
-    super(field, FieldTypes.number, { isRequired: options.isRequired });
-    if (typeof options?.minValue === "number") this._minValue = options.minValue;
-    if (typeof options?.maxValue === "number") this._maxValue = options.maxValue;
+  constructor(options: TNumberFieldValidationConstructorOptions<TPIsRequired>) {
+    super(FieldTypes.number, {
+      field: options.field,
+      isRequired: options.isRequired,
+    });
+    this._minValue = options.minValue;
+    this._maxValue = options.maxValue;
   }
 
-  static getDefaultConstructorOptions(): TNumberFieldValidationConstructorOptions<false> {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TNumberFieldValidationConstructorOptions<false>,
+    boolean
+  > {
     return {
       ...super.getDefaultConstructorOptions(),
-      minValue: undefined,
-      maxValue: undefined,
     };
   }
 
-  protected getCurrentConstructorOptions(): TNumberFieldValidationConstructorOptions<TRequired> {
+  protected getCurrentConstructorOptions(): TNumberFieldValidationConstructorOptions<TPIsRequired> {
     return {
       ...super.getCurrentConstructorOptions(),
       minValue: this._minValue,
@@ -211,27 +270,42 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
     };
   }
 
-  setField(field: string): NumberFieldValidations<TRequired> {
-    return new NumberFieldValidations(field, { ...this.getCurrentConstructorOptions() });
+  setField(field: string): NumberFieldValidations<TPIsRequired> {
+    return new NumberFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      field,
+    });
   }
 
-  setIsRequired<TRequiredCur extends boolean>(isRequired: TRequiredCur): NumberFieldValidations<TRequiredCur> {
-    return new NumberFieldValidations(this._field, {
+  setIsRequired<TPRequiredCur extends boolean>(
+    isRequired: TPRequiredCur,
+  ): NumberFieldValidations<TPRequiredCur> {
+    return new NumberFieldValidations({
       ...this.getCurrentConstructorOptions(),
       isRequired: isRequired,
     });
   }
 
-  setMinValue(minValue: number | undefined): NumberFieldValidations<TRequired> {
-    return new NumberFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), minValue });
+  setMinValue(
+    minValue: number | undefined,
+  ): NumberFieldValidations<TPIsRequired> {
+    return new NumberFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      minValue,
+    });
   }
 
-  setMaxValue(maxValue: number | undefined): NumberFieldValidations<TRequired> {
-    return new NumberFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), maxValue });
+  setMaxValue(
+    maxValue: number | undefined,
+  ): NumberFieldValidations<TPIsRequired> {
+    return new NumberFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      maxValue,
+    });
   }
 
-  clone(): NumberFieldValidations<TRequired> {
-    return new NumberFieldValidations(this._field, this.getCurrentConstructorOptions());
+  clone(): NumberFieldValidations<TPIsRequired> {
+    return new NumberFieldValidations(this.getCurrentConstructorOptions());
   }
 
   toJSON(): Record<string, any> {
@@ -243,16 +317,21 @@ export class NumberFieldValidations<TRequired extends boolean> extends FieldVali
   }
 }
 
-export class ArrayFieldValidations<TRequired extends boolean> extends FieldValidations<TRequired> {
-  private _length?: number;
-  private _minLength?: number;
-  private _maxLength?: number;
+export class ArrayFieldValidations<
+  TPIsRequired extends boolean,
+> extends FieldValidations<TPIsRequired> {
+  private readonly _length?: number;
+  private readonly _minLength?: number;
+  private readonly _maxLength?: number;
 
-  constructor(field: string, options: TArrayFieldValidationConstructorOptions<TRequired>) {
-    super(field, FieldTypes.array, { isRequired: options.isRequired });
-    if (typeof options?.length === "number") this._length = options.length;
-    if (typeof options?.minLength === "number") this._minLength = options.minLength;
-    if (typeof options?.maxLength === "number") this._maxLength = options.maxLength;
+  constructor(options: TArrayFieldValidationConstructorOptions<TPIsRequired>) {
+    super(FieldTypes.array, {
+      field: options.field,
+      isRequired: options.isRequired,
+    });
+    this._length = options.length;
+    this._minLength = options.minLength;
+    this._maxLength = options.maxLength;
   }
 
   get length(): number | undefined {
@@ -267,7 +346,7 @@ export class ArrayFieldValidations<TRequired extends boolean> extends FieldValid
     return this._maxLength;
   }
 
-  protected getCurrentConstructorOptions(): TArrayFieldValidationConstructorOptions<TRequired> {
+  protected getCurrentConstructorOptions(): TArrayFieldValidationConstructorOptions<TPIsRequired> {
     return {
       ...super.getCurrentConstructorOptions(),
       length: this._length,
@@ -276,40 +355,54 @@ export class ArrayFieldValidations<TRequired extends boolean> extends FieldValid
     };
   }
 
-  static getDefaultConstructorOptions(): TArrayFieldValidationConstructorOptions<false> {
+  static getDefaultConstructorOptions(): OnlyWithTypeParameter<
+    TArrayFieldValidationConstructorOptions<false>,
+    boolean
+  > {
     return {
       ...super.getDefaultConstructorOptions(),
-      length: undefined,
-      minLength: undefined,
-      maxLength: undefined,
     };
   }
 
-  setField(field: string) {
-    return new ArrayFieldValidations(field, this.getCurrentConstructorOptions());
+  setField(field: string): ArrayFieldValidations<TPIsRequired> {
+    return new ArrayFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      field,
+    });
   }
 
-  setIsRequired<TRequiredCur extends boolean>(isRequired: TRequiredCur) {
-    return new ArrayFieldValidations(this._field, {
+  setIsRequired<TPIsRequiredCur extends boolean>(
+    isRequired: TPIsRequiredCur,
+  ): ArrayFieldValidations<TPIsRequiredCur> {
+    return new ArrayFieldValidations({
       ...this.getCurrentConstructorOptions(),
       isRequired,
     });
   }
 
-  setLength(length: number) {
-    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), length });
+  setLength(length: number): ArrayFieldValidations<TPIsRequired> {
+    return new ArrayFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      length,
+    });
   }
 
-  setMinLength(minLength: number) {
-    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), minLength });
+  setMinLength(minLength: number): ArrayFieldValidations<TPIsRequired> {
+    return new ArrayFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      minLength,
+    });
   }
 
-  setMaxLength(maxLength: number) {
-    return new ArrayFieldValidations(this._field, { ...this.getCurrentConstructorOptions(), maxLength });
+  setMaxLength(maxLength: number): ArrayFieldValidations<TPIsRequired> {
+    return new ArrayFieldValidations({
+      ...this.getCurrentConstructorOptions(),
+      maxLength,
+    });
   }
 
-  clone() {
-    return new ArrayFieldValidations(this._field, this.getCurrentConstructorOptions());
+  clone(): ArrayFieldValidations<TPIsRequired> {
+    return new ArrayFieldValidations(this.getCurrentConstructorOptions());
   }
 
   toJSON(): Record<string, any> {
@@ -322,4 +415,13 @@ export class ArrayFieldValidations<TRequired extends boolean> extends FieldValid
   }
 }
 
-export type TFieldValidationsUnion = StringFieldValidations<any, any, any> | NumberFieldValidations<any> | ArrayFieldValidations<any>;
+export type TGFieldValidations = FieldValidations<any>;
+export type TGStringFieldValidations = StringFieldValidations<any, any, any>;
+export type TGNumberFieldValidations = NumberFieldValidations<any>;
+export type TGArrayFieldValidations = ArrayFieldValidations<any>;
+
+export type TFieldValidationsUnion =
+  | TGFieldValidations
+  | TGStringFieldValidations
+  | TGNumberFieldValidations
+  | TGArrayFieldValidations;
