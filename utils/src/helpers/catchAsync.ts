@@ -1,4 +1,4 @@
-// Third party imports
+// third party imports
 import type { Request, Response, NextFunction } from "express";
 
 const catchAsync =

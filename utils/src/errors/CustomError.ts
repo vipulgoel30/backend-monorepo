@@ -1,25 +1,31 @@
-// User imports
-import { getErrorMessage } from "../utils.ts";
-
-export interface CustomErrorInfo<MetaType extends Record<string, any> = Record<string, any>> {
+export interface TCustomErrorInfo {
   scope?: string;
   error?: any;
-  meta?: MetaType;
+  meta?: any;
 }
 
-export class CustomError extends Error {
-  constructor(
-    message: string,
-    public readonly info?: CustomErrorInfo,
-  ) {
-    super(message);
-  }
+export interface TCustomErrorConstructorOptions {
+  info?: TCustomErrorInfo;
+}
 
-  getInfo() {
-    return {
-      ...this.info?.meta,
-      ...(this.info?.scope && { scope: this.info.scope }),
-      ...(this.info?.error && { error: getErrorMessage(this.info.error) }),
-    };
+export type TCustomErrorConstructorOptionsWithoutScope =
+  TCustomErrorConstructorOptions & { info?: Omit<TCustomErrorInfo, "scope"> };
+
+export class CustomError extends Error {
+  public readonly info;
+
+  constructor(message: string, options?: TCustomErrorConstructorOptions) {
+    super(message);
+    if (options?.info) this.info = { ...options.info };
+
+    // ensure the dispayed name is CustomError not Error
+    this.name = this.constructor.name;
+
+    // ensure that the prototype chain is correct (new CustomError() instanceof CustomError ==> returns true)
+    Object.setPrototypeOf(this, new.target.prototype);
+
+    // Removed the stack trace for the constructor
+    // to remove extra line in stack trace
+    Error.captureStackTrace(this, this.constructor);
   }
 }

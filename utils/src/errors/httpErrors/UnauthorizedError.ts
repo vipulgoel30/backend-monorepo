@@ -1,12 +1,23 @@
-// User imports
+// user imports
 import { utilsConstants as constants } from "../../config/constants.ts";
-import { AppError, type DeveloperError } from "../AppError.ts";
+import {
+  RequestError,
+  TRequestErrorConstructorOptions,
+} from "../RequestError.ts";
 
-export class UnauthorizedError<MetaType> extends AppError<MetaType> {
+export class UnauthorizedError extends RequestError {
   constructor(
     message: string,
-    public readonly developerError?: DeveloperError<MetaType>,
+    statusCode: number,
+    options: Omit<TRequestErrorConstructorOptions, "statusCode">,
   ) {
-    super(message, constants.HTTP_CODES.INTERNAL_SERVER_ERROR, developerError);
+    super(message, statusCode, {
+      ...options,
+      statusCode: constants.HTTP_CODES.UNAUTHORIZED,
+    });
+
+    this.name = this.constructor.name;
+    Object.setPrototypeOf(this, new.target.prototype);
+    Error.captureStackTrace(this, this.constructor);
   }
 }
