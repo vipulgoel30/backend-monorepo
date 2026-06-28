@@ -13,7 +13,7 @@ export interface TRedisCommandResponse<TData = any> {
   status: EnumRedisStatus;
 }
 
-export interface RedisConnectUrlConfig {
+export interface TRedisConnectUrlConfig {
   username: string;
   password: string;
   hostname: string;

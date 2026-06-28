@@ -6,15 +6,8 @@ import {
 } from "../RequestError.ts";
 
 export class UnauthorizedError extends RequestError {
-  constructor(
-    message: string,
-    statusCode: number,
-    options: Omit<TRequestErrorConstructorOptions, "statusCode">,
-  ) {
-    super(message, statusCode, {
-      ...options,
-      statusCode: constants.HTTP_CODES.UNAUTHORIZED,
-    });
+  constructor(message: string, options?: TRequestErrorConstructorOptions) {
+    super(message, constants.HTTP_CODES.UNAUTHORIZED, options);
 
     this.name = this.constructor.name;
     Object.setPrototypeOf(this, new.target.prototype);

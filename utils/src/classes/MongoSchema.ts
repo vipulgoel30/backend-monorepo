@@ -6,7 +6,7 @@ import {
   TGFieldDefinition,
   TGNumberFieldDefintion,
   TGStringFieldDefinition,
-} from "./FieldDefinition.ts";
+} from "./../classes/fieldDefinition/FieldDefinition.ts";
 import {
   TFieldValidationErrors,
   TNumberFieldValidationErrors,
@@ -16,7 +16,7 @@ import BaseClass from "./Base.ts";
 import {
   NumberFieldValidationErrors,
   StringFieldValidationErrors,
-} from "./FieldValidationErrorMsgs.ts";
+} from "./fieldDefinition/FieldValidationErrorMsgs.ts";
 
 export interface TMongoCustomValidation<TPSchemaType> {
   validator: (value: TPSchemaType) => boolean;
@@ -35,20 +35,30 @@ interface TMongoSchemaConstructorOptions<
 }
 
 export interface TStringMongoSchemaConstructorOptions<
-  TPFieldDefinitions extends TGStringFieldDefinition,
+  TPStringFieldDefinitions extends TGStringFieldDefinition,
 > extends TMongoSchemaConstructorOptions<
-  TPFieldDefinitions,
+  TPStringFieldDefinitions,
   TStringFieldValidationErrors,
   string
 > {}
 
 export interface TNumberMongoSchemaConstructorOptions<
-  TPFieldDefinitions extends TGNumberFieldDefintion,
+  TPNumberFieldDefinitions extends TGNumberFieldDefintion,
 > extends TMongoSchemaConstructorOptions<
-  TPFieldDefinitions,
+  TPNumberFieldDefinitions,
   TNumberFieldValidationErrors,
   number
 > {}
+
+// export interface TArrayMongoSchemaConstructorOptions<
+//   TPArrayFieldDefinition extends TGArrayFieldDefinition,
+// > extends TMongoSchemaConstructorOptions<
+//   TPArrayFieldDefinition,
+//   TArrayFieldValidationErrors,
+//   ExtractFieldType<TPArrayFieldDefinition["elementsFieldDefinition"]>
+// > {
+//   // elementsValidationErrors?:
+// }
 
 abstract class MongoSchema<
   TPFieldDefinitions extends TGFieldDefinition,
@@ -206,7 +216,7 @@ export class StringMongoSchema<
     const transformations: TPStringFieldDefinitions["transformations"] =
       this._fieldDefinition.transformations;
 
-    const schema: SchemaTypeOptions<string> = { type: "string" };
+    const schema: SchemaTypeOptions<string> = { type: String };
     if (transformations?.isTrim === true) schema.trim = true;
 
     if (typeof validations.minLength === "number")
@@ -300,7 +310,7 @@ export class NumberMongoSchema<
     const transformations: TPNumberFieldDefinitions["transformations"] =
       this._fieldDefinition.transformations;
 
-    const schema: SchemaTypeOptions<number> = { type: "number" };
+    const schema: SchemaTypeOptions<number> = { type: Number };
     if (typeof validations.minValue === "number")
       schema.min = [validations.minValue, validationErrors.minValue!];
     if (typeof validations.maxValue === "number")
@@ -315,3 +325,90 @@ export class NumberMongoSchema<
     return schema;
   }
 }
+
+// export class ArrayMongoSchema<
+//   TPArrayFieldDefinition extends TGArrayFieldDefinition,
+// > extends MongoSchema<
+//   TPArrayFieldDefinition,
+//   TArrayFieldValidationErrors,
+//   ExtractFieldType<TPArrayFieldDefinition["elementsFieldDefinition"]>
+// > {
+//   constructor(
+//     options: TArrayMongoSchemaConstructorOptions<TPArrayFieldDefinition>,
+//   ) {
+//     super(options);
+//   }
+
+//   setFieldDefinition(...args: any) {
+//     throw new Error("Method not implemented.");
+//   }
+//   setEntity(...args: any) {
+//     throw new Error("Method not implemented.");
+//   }
+//   addCustomValidations(...args: any) {
+//     throw new Error("Method not implemented.");
+//   }
+//   setCustomValidations(...args: any) {
+//     throw new Error("Method not implemented.");
+//   }
+//   setValidationErrors(...args: any) {
+//     throw new Error("Method not implemented.");
+//   }
+//   clone() {
+//     throw new Error("Method not implemented.");
+//   }
+
+//   build(): SchemaTypeOptions<
+//     ExtractFieldType<TPArrayFieldDefinition["elementsFieldDefinition"]>
+//   > {
+//     const validationErrors: TArrayFieldValidationErrors =
+//       new ArrayFieldValidationErrors({
+//         fieldDefinition: this._fieldDefinition,
+//         defaultErrors: this._validationErrors,
+//       }).build();
+
+//     const validations: TPArrayFieldDefinition["validations"] =
+//       this._fieldDefinition.validations;
+//     const transformations: TPArrayFieldDefinition["transformations"] =
+//       this._fieldDefinition.transformations;
+//     const elementsFieldDefinition: TPArrayFieldDefinition["elementsFieldDefinition"] =
+//       this._fieldDefinition.elementsFieldDefinition;
+
+//     let elementSchema = null;
+//     if (elementsFieldDefinition instanceof StringFieldDefinition) {
+//       elementSchema = new StringMongoSchema({
+//         fieldDefinition: elementsFieldDefinition,
+//       });
+//     }
+//   }
+// }
+
+// const test = new ArrayFieldDefinition({
+//   validations: new ArrayFieldValidations({
+//     ...ArrayFieldValidations.getDefaultConstructorOptions(),
+//     field: "dwduww",
+//     isRequired: true,
+//   }),
+//   transformations: new ArrayFieldTransformations({
+//     ...ArrayFieldTransformations.getDefaultConstructorOptions(),
+//   }),
+//   elementsFieldDefinition: new ArrayFieldDefinition({
+//     validations: new ArrayFieldValidations({
+//       ...ArrayFieldValidations.getDefaultConstructorOptions(),
+//       field: "dwudwu",
+//     }),
+//     transformations: new ArrayFieldTransformations({
+//       ...ArrayFieldTransformations.getDefaultConstructorOptions(),
+//     }),
+//     elementsFieldDefinition: new NumberFieldDefinition({
+//       validations: new NumberFieldValidations({
+//         ...NumberFieldValidations.getDefaultConstructorOptions(),
+//         field: "bwudwu",
+//       }),
+
+//       transformations: new NumberFieldTransformations({
+//         ...NumberFieldTransformations.getDefaultConstructorOptions(),
+//       }),
+//     }),
+//   }),
+// });

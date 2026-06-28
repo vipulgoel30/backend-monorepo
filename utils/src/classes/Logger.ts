@@ -1,4 +1,8 @@
-export type TLogger = Record<string, (message: string, ...meta: any[]) => void>;
+import { config } from "winston";
+
+export type TLogger = {
+  [Key in keyof config.NpmConfigSetLevels]: (message: string, ...meta: any[]) => void;
+};
 
 export class Logger {
   private static _logger: TLogger | null;

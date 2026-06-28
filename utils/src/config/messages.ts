@@ -4,7 +4,7 @@ export const utilsMessages = {
   FIELD: {
     REQUIRED: "The '{field}' is required.",
     INVALID_TYPE: "The '{field}' must be of type {type}.",
-    INVALID_VALUE: "Invalid value provided for the field '{field}'.",
+    INVALID_VALUE: "Invalid value provided for the '{field}'.",
 
     STRING: {
       MAX_LENGTH: "The '{field}' must not exceed {maxLength} characters.",
@@ -24,14 +24,13 @@ export const utilsMessages = {
   },
 
   INVALID_VALIDATIONS: {
-    NUMBER_MIN_VALUE: "Invalid minValue configured for field '{field}'. Expected a finite number.",
-    NUMBER_MAX_VALUE: "Invalid maxValue configured for field '{field}'. Expected a finite number.",
+    NUMBER_MIN_VALUE: "Invalid minValue configured for '{field}'. Expected a finite number.",
+    NUMBER_MAX_VALUE: "Invalid maxValue configured for '{field}'. Expected a finite number.",
     NUMBER_MIN_MAX_VALUE_RANGE:
-      "Invalid value range configured for field '{field}'. minValue cannot be greater than maxValue.",
-    STRING_MIN_LENGTH: "Invalid minLength configured for field '{field}'. Expected a non-negative safe integer.",
-    STRING_MAX_LENGTH: "Invalid maxLength configured for field '{field}'. Expected a non-negative safe integer.",
-    STRING_LENGTH_RANGE:
-      "Invalid length range configured for field '{field}'. minLength cannot be greater than maxLength.",
+      "Invalid value range configured for '{field}'. minValue cannot be greater than maxValue.",
+    STRING_MIN_LENGTH: "Invalid minLength configured for '{field}'. Expected a non-negative safe integer.",
+    STRING_MAX_LENGTH: "Invalid maxLength configured for '{field}'. Expected a non-negative safe integer.",
+    STRING_LENGTH_RANGE: "Invalid length range configured for '{field}'. minLength cannot be greater than maxLength.",
     ARRAY_LENGTH_WITH_MIN_MAX:
       "Invalid configuration for '{field}': 'length' cannot be used together with 'minLength' or 'maxLength'.",
     ARRAY_MIN_LENGTH: "Invalid minLength configured for '{field}': 'minLength' must be a non-negative number.",
@@ -42,7 +41,7 @@ export const utilsMessages = {
 
   INVALID_TRANFORMATIONS: {
     CONFLICTING_CASE_TRANSFORM:
-      "Conflicting case transformation configured for field '{field}'. Cannot apply both lowerCase and upperCase transformations.",
+      "Conflicting case transformation configured for '{field}'. Cannot apply both lowerCase and upperCase transformations.",
   },
 
   INVALID_FIELD_DEFINITION: {
@@ -76,12 +75,22 @@ export const utilsMessages = {
 
   REDIS: {
     SCOPE: "Redis",
-    CREATE_REDIS_CONNECT_URL_ERROR: "Failed to create Redis connection URL.",
-    CREATE_REDIS_CLIENT_ERROR: "Failed to create Redis Client.",
+    INVALID_CONNECTION_PARAMETERS: "Invalid Redis connection parameters.",
+    CREATE_CONNECTION_URL_ERROR: "Failed to create Redis connection URL.",
+    CREATE_CLIENT_ERROR: "Failed to create Redis client.",
+    INIT_CLIENT_ERROR: "Failed to initialize Redis client.",
     CLIENT_NOT_FOUND: "Redis client not found.",
-    REDIS_COMMAND_ERROR: "Failed to execute redis command: {command}",
-    REDIS_COMMAND_RESPONSE: "Redis command response for command: {command}",
-    COMMANDS_NAME: {
+    COMMAND_EXECUTE_ERROR: "Failed to execute Redis command: '{command}'.",
+    INVALID_COMMAND_RESPONSE: "Invalid response received for Redis command: '{command}'.",
+    COMMAND_RESPONSE_LABEL: "Redis command response: '{command}'",
+
+    CONNECT_EVENT: "Connecting to Redis server.",
+    READY_EVENT: "Redis client is ready.",
+    END_EVENT: "Redis connection closed.",
+    ERROR_EVENT: "Redis client error.",
+    RECONNECTING_EVENT: "Reconnecting to Redis server.",
+
+    COMMANDS: {
       HASH: {
         HGET: "hget",
       },
@@ -90,11 +99,12 @@ export const utilsMessages = {
         GET: "GET",
         GETEX: "GETEX",
       },
-      TIME: "TIME",
+      TIME: "time",
     },
   },
   METHOD: {
     LOG_IN: "Method /IN",
-    LOG_OUT: "Method /OUT",
+    LOG_OUT_SUCCESS: "Method /OUT (SUCCESS)",
+    LOG_OUT_ERROR: "Method /OUT (ERROR)",
   },
 } as const;

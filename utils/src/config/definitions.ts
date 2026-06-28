@@ -1,19 +1,24 @@
 // User imports
 import {
+  ArrayFieldDefinition,
   NumberFieldDefinition,
   StringFieldDefinition,
   TFieldDefinitionsUnion,
-} from "../classes/FieldDefinition.ts";
+} from "../classes/fieldDefinition/FieldDefinition.ts";
 import {
+  ArrayFieldTransformations,
   NumberFieldTransformations,
   StringFieldTransformations,
   TFieldTransformationsUnion,
-} from "../classes/FieldTransformations.ts";
+} from "../classes/fieldDefinition/FieldTransformations.ts";
 import {
+  ArrayFieldValidations,
   NumberFieldValidations,
   StringFieldValidations,
   TFieldValidationsUnion,
-} from "../classes/FieldValidations.ts";
+} from "../classes/fieldDefinition/FieldValidations.ts";
+import { formatStr } from "../utils.ts";
+import { utilsMessages as messages } from "./messages.ts";
 import { utilsSettings as settings } from "./settings.ts";
 
 ////////////////////////////////////////////////////////
@@ -80,9 +85,7 @@ export const mongoUriConfigurationFieldDefinitions = {
     }),
   }),
   port: new NumberFieldDefinition({
-    validations: utilFieldValidations.port.setField(
-      "Mongo Configuration : Port",
-    ),
+    validations: utilFieldValidations.port.setField("Mongo Configuration : Port"),
     transformations: utilFieldTransformations.port,
   }),
 
@@ -103,7 +106,7 @@ export const mongoUriConfigurationFieldDefinitions = {
 //////////////////////////////////////////////////
 /// REDIS URL CONFIGURATION FIELD DEFINITIONS
 //////////////////////////////////////////////////
-export const redisUrlConfigurationFieldDefinitions = {
+export const redisUrlConfigDefinition = {
   username: new StringFieldDefinition({
     validations: new StringFieldValidations({
       ...StringFieldValidations.getDefaultConstructorOptions(),
@@ -141,9 +144,36 @@ export const redisUrlConfigurationFieldDefinitions = {
     }),
   }),
   port: new NumberFieldDefinition({
-    validations: utilFieldValidations.port.setField(
-      "Redis Configuration : Port",
-    ),
+    validations: utilFieldValidations.port.setField("Redis Configuration : Port"),
     transformations: utilFieldTransformations.port,
   }),
 } satisfies Record<string, TFieldDefinitionsUnion>;
+
+//////////////////////////////////////////////////
+/// REDIS COMMANDS SCHEMAS
+//////////////////////////////////////////////////
+
+export const redisTimeCommandDefinition = new ArrayFieldDefinition({
+  validations: new ArrayFieldValidations({
+    ...ArrayFieldValidations.getDefaultConstructorOptions(),
+    field: formatStr(messages.REDIS.COMMAND_RESPONSE_LABEL, {
+      command: messages.REDIS.COMMANDS.TIME,
+    }),
+    isRequired: true,
+    length: 2,
+  }),
+  transformations: new ArrayFieldTransformations({
+    ...ArrayFieldTransformations.getDefaultConstructorOptions(),
+  }),
+  elementsFieldDefinition: new NumberFieldDefinition({
+    validations: new NumberFieldValidations({
+      ...NumberFieldValidations.getDefaultConstructorOptions(),
+      isRequired: true,
+      field: "N/A",
+    }),
+    transformations: new NumberFieldTransformations({
+      ...NumberFieldTransformations.getDefaultConstructorOptions(),
+      isCoerce: true,
+    }),
+  }),
+});
